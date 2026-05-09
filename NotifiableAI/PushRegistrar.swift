@@ -1,6 +1,4 @@
 import Foundation
-
-#if canImport(UIKit)
 import UIKit
 import UserNotifications
 
@@ -63,7 +61,6 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         )
     }
 }
-#endif
 
 enum PushTokenFormatter {
     static func hex(_ data: Data) -> String {

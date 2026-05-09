@@ -1,10 +1,6 @@
 import SwiftUI
-import NotifiableAIKit
-#if canImport(UIKit)
 import UIKit
-#elseif canImport(AppKit)
-import AppKit
-#endif
+import NotifiableAIKit
 
 struct ContentView: View {
     @EnvironmentObject var harness: TestHarness
@@ -64,9 +60,7 @@ private struct SettingsTab: View {
                 }
             }
             .navigationTitle("Settings")
-            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
-            #endif
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     if harness.inFlight > 0 {
@@ -95,9 +89,7 @@ private struct LogTab: View {
                 }
             }
             .navigationTitle("Log")
-            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
-            #endif
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     if harness.inFlight > 0 {
@@ -118,11 +110,7 @@ private struct LabeledTextField: View {
     @Binding var text: String
     var secure: Bool = false
     var clearable: Bool = false
-    #if os(iOS)
     var keyboard: UIKeyboardType = .default
-    #else
-    var keyboard: Int = 0
-    #endif
 
     var body: some View {
         HStack {
@@ -136,11 +124,9 @@ private struct LabeledTextField: View {
                 }
             }
             .multilineTextAlignment(.trailing)
-            #if os(iOS)
             .keyboardType(keyboard)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
-            #endif
             if clearable && !text.isEmpty {
                 Button {
                     text = ""
@@ -186,13 +172,7 @@ private struct LabeledReadOnlyField: View {
     }
 
     private func copy(_ s: String) {
-        #if canImport(UIKit)
         UIPasteboard.general.string = s
-        #elseif canImport(AppKit)
-        let pb = NSPasteboard.general
-        pb.clearContents()
-        pb.setString(s, forType: .string)
-        #endif
     }
 }
 

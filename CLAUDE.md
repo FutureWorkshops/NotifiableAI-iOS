@@ -8,7 +8,7 @@ This repo contains two related products in a monorepo:
 
 1. **NotifiableAIKit** — a Swift Package (iOS / macOS / visionOS) that wraps the
    NotifiableAI Rails server's `/api/v1/*` endpoints. Distributable via SwiftPM.
-2. **NotifiableAI** — a SwiftUI multiplatform "TestApp" that depends on
+2. **NotifiableAI** — a SwiftUI iOS-only "TestApp" that depends on
    NotifiableAIKit via a local SwiftPM reference and exposes every server endpoint
    through buttons / text fields with a scrolling log.
 
@@ -17,7 +17,7 @@ The Rails server lives in a sibling repo at `../Notifiable-Rails`.
 - Xcode project: `NotifiableAI.xcodeproj` (consumes the local package at `./NotifiableAIKit`).
 - Package manifest: `NotifiableAIKit/Package.swift`.
 - Deployment target: iOS 26.2 / iOS 17 (package), Swift 5.0 (app), 6.0 (package).
-- Supported platforms: `iphoneos iphonesimulator macosx xros xrsimulator`; device family `1,2,7`.
+- App supported platforms: `iphoneos iphonesimulator`; device family `1,2`. The package still supports iOS / macOS / visionOS for SDK consumers.
 - Test framework: Swift Testing (`import Testing`, `@Test`).
 
 ## Layout
