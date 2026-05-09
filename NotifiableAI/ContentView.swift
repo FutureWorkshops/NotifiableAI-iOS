@@ -1,5 +1,10 @@
 import SwiftUI
 import NotifiableAIKit
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 struct ContentView: View {
     @EnvironmentObject var harness: TestHarness
@@ -28,7 +33,7 @@ private struct SettingsTab: View {
                 }
 
                 Section("Device") {
-                    LabeledTextField(label: "Push Token", text: $harness.pushToken)
+                    LabeledReadOnlyField(label: "Push Token", value: harness.pushToken)
                     Picker("Push Type", selection: $harness.pushType) {
                         ForEach(PushType.allCases, id: \.self) { t in
                             Text(t.rawValue).tag(t)
@@ -36,7 +41,7 @@ private struct SettingsTab: View {
                     }
                     LabeledTextField(label: "App Version", text: $harness.appVersion)
                     LabeledTextField(label: "Locale", text: $harness.locale)
-                    LabeledTextField(label: "Device Secret", text: $harness.deviceSecret, secure: true)
+                    LabeledReadOnlyField(label: "Device Secret", value: harness.deviceSecret)
                     HStack {
                         Button("Register", action: harness.registerDevice)
                             .buttonStyle(.borderedProminent)
@@ -138,6 +143,46 @@ private struct LabeledTextField: View {
             .autocorrectionDisabled()
             #endif
         }
+    }
+}
+
+private struct LabeledReadOnlyField: View {
+    let label: String
+    let value: String
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text(label).foregroundStyle(.secondary)
+            Spacer()
+            if value.isEmpty {
+                Text("—").foregroundStyle(.tertiary)
+            } else {
+                Text(value)
+                    .font(.system(.footnote, design: .monospaced))
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .textSelection(.enabled)
+                    .frame(maxWidth: 220, alignment: .trailing)
+                Button {
+                    copy(value)
+                } label: {
+                    Image(systemName: "doc.on.doc")
+                        .imageScale(.small)
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel("Copy \(label)")
+            }
+        }
+    }
+
+    private func copy(_ s: String) {
+        #if canImport(UIKit)
+        UIPasteboard.general.string = s
+        #elseif canImport(AppKit)
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        pb.setString(s, forType: .string)
+        #endif
     }
 }
 
