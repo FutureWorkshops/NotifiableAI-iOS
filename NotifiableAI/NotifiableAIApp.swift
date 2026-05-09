@@ -1,32 +1,13 @@
-//
-//  NotifiableAIApp.swift
-//  NotifiableAI
-//
-//  Created by Matt Brooke-Smith on 08/05/2026.
-//
-
 import SwiftUI
-import SwiftData
 
 @main
 struct NotifiableAIApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    @StateObject private var harness = TestHarness()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(harness)
         }
-        .modelContainer(sharedModelContainer)
     }
 }
