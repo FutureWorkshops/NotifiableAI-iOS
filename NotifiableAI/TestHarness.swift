@@ -22,7 +22,7 @@ final class TestHarness: ObservableObject {
     @Published var pushType: PushType = .alert
     @Published var appVersion: String = "1.0.0"
     @Published var locale: String = Locale.current.identifier
-    @Published var deviceSecret: String = ""
+    @Published var deviceSecret: String = UserDefaults.standard.string(forKey: "deviceSecret") ?? ""
 
     // Live activity
     @Published var activityId: String = ""
@@ -61,6 +61,7 @@ final class TestHarness: ObservableObject {
         d.set(baseURLString, forKey: "baseURL")
         d.set(deviceWriteKey, forKey: "deviceWriteKey")
         d.set(pushToken, forKey: "pushToken")
+        d.set(deviceSecret, forKey: "deviceSecret")
     }
 
     func clearLog() { log.removeAll() }
@@ -107,6 +108,7 @@ final class TestHarness: ObservableObject {
             )
             if let secret = resp.deviceSecret {
                 self.deviceSecret = secret
+                self.persist()
             }
             return "id=\(resp.id) secret=\(resp.deviceSecret ?? "—")"
         }
