@@ -35,37 +35,52 @@ Or in Xcode: **File → Add Package Dependencies…** and paste the repo URL.
 
 ## Usage
 
+The kit ships two surfaces. Most apps want the high-level `NotifiableAI`
+namespace, which auto-fills `app_version` / `locale` from the bundle and
+persists the returned `device_secret` to the keychain so you don't have to
+think about it.
+
 ```swift
 import NotifiableAIKit
 
-let client = NotifiableAIClient(
-    baseURL: URL(string: "https://your-notifiable-server.example.com")!,
-    deviceWriteKey: "nfk_your_device_write_api_key"
+// 1. Configure once at app startup.
+NotifiableAI.configure(
+    baseURL: URL(string: "https://api.notifiable.ai")!,
+    apiKey: "nfk_your_device_write_key"
 )
 
-// Register the device for push.
-let device = try await client.registerDevice(
-    pushToken: apnsTokenHex,
-    pushType: .alert,
-    appVersion: "1.0.0",
-    locale: Locale.current.identifier
-)
+// 2. Register from didRegisterForRemoteNotificationsWithDeviceToken.
+func application(_ app: UIApplication,
+                 didRegisterForRemoteNotificationsWithDeviceToken token: Data) {
+    let hex = token.map { String(format: "%02x", $0) }.joined()
+    Task { try? await NotifiableAI.register(pushToken: hex) }
+}
 
-// Persist `device.deviceSecret` — it is required for subsequent update/delete
-// calls and is only returned on the initial register response.
-
-// Update later.
-_ = try await client.updateDevice(
-    pushToken: apnsTokenHex,
-    deviceSecret: storedDeviceSecret,
-    appVersion: "1.0.1"
-)
-
-// Tear down.
-try await client.deleteDevice(pushToken: apnsTokenHex, deviceSecret: storedDeviceSecret)
+// Later — update / unregister automatically reuse the stored device_secret.
+try await NotifiableAI.update(pushToken: hex)
+try await NotifiableAI.unregister(pushToken: hex)
 ```
 
-The kit only exposes device-write endpoints (the API key kind that's safe to ship in a client). Server-trigger operations such as **sending notifications** are intentionally out of scope — those belong in your backend, calling NotifiableAI directly with a `server_trigger` key.
+`NotifiableAI.deviceSecret` and `NotifiableAI.deviceId` give read access to the
+persisted state if you need it. Pass a custom `NotifiableAIStorage` to
+`configure(... storage:)` to swap the keychain for something else.
+
+For runtime configuration switching (multi-environment debug tools, the bundled
+TestApp, etc.) drop down to `NotifiableAIClient`:
+
+```swift
+let client = NotifiableAIClient(
+    baseURL: URL(string: "https://staging.notifiable.example")!,
+    deviceWriteKey: "nfk_..."
+)
+let device = try await client.registerDevice(pushToken: hex)
+// Caller is responsible for persisting device.deviceSecret.
+```
+
+The kit only exposes device-write endpoints (the API key kind that's safe to
+ship in a client). Server-trigger operations such as **sending notifications**
+are intentionally out of scope — those belong in your backend, calling
+NotifiableAI directly with a `server_trigger` key.
 
 ## API surface
 
