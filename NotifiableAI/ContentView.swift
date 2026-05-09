@@ -28,8 +28,8 @@ private struct SettingsTab: View {
         NavigationStack {
             Form {
                 Section("Connection") {
-                    LabeledTextField(label: "Base URL", text: $harness.baseURLString, keyboard: .URL)
-                    LabeledTextField(label: "Device Write Key", text: $harness.deviceWriteKey, secure: true)
+                    LabeledTextField(label: "Base URL", text: $harness.baseURLString, clearable: true, keyboard: .URL)
+                    LabeledTextField(label: "Device Write Key", text: $harness.deviceWriteKey, secure: true, clearable: true)
                 }
 
                 Section("Device") {
@@ -119,6 +119,7 @@ private struct LabeledTextField: View {
     let label: String
     @Binding var text: String
     var secure: Bool = false
+    var clearable: Bool = false
     #if os(iOS)
     var keyboard: UIKeyboardType = .default
     #else
@@ -142,6 +143,17 @@ private struct LabeledTextField: View {
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
             #endif
+            if clearable && !text.isEmpty {
+                Button {
+                    text = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.tertiary)
+                        .imageScale(.small)
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel("Clear \(label)")
+            }
         }
     }
 }
