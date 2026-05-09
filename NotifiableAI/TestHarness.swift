@@ -31,6 +31,31 @@ final class TestHarness: ObservableObject {
     @Published private(set) var log: [LogEntry] = []
     @Published private(set) var inFlight: Int = 0
 
+    private var observers: [NSObjectProtocol] = []
+
+    init() {
+        let center = NotificationCenter.default
+        observers.append(center.addObserver(forName: .pushTokenAvailable, object: nil, queue: .main) { [weak self] note in
+            guard let self, let token = note.userInfo?["token"] as? String else { return }
+            Task { @MainActor in
+                self.pushToken = token
+                self.append(.info, "APNs token received: \(token)")
+                self.persist()
+            }
+        })
+        observers.append(center.addObserver(forName: .pushRegistrationFailed, object: nil, queue: .main) { [weak self] note in
+            guard let self else { return }
+            let err = (note.userInfo?["error"] as? String) ?? "unknown"
+            Task { @MainActor in
+                self.append(.failure, "Push registration failed: \(err)")
+            }
+        })
+    }
+
+    deinit {
+        observers.forEach { NotificationCenter.default.removeObserver($0) }
+    }
+
     func persist() {
         let d = UserDefaults.standard
         d.set(baseURLString, forKey: "baseURL")

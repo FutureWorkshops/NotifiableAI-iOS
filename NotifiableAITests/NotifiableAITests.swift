@@ -1,16 +1,14 @@
-//
-//  NotifiableAITests.swift
-//  NotifiableAITests
-//
-//  Created by Matt Brooke-Smith on 08/05/2026.
-//
-
 import Testing
+import Foundation
+@testable import NotifiableAI
 
 struct NotifiableAITests {
-
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+    @Test func pushTokenFormatterProducesLowerHex() {
+        let data = Data([0x00, 0x01, 0xab, 0xff])
+        #expect(PushTokenFormatter.hex(data) == "0001abff")
     }
 
+    @Test func pushTokenFormatterEmptyData() {
+        #expect(PushTokenFormatter.hex(Data()) == "")
+    }
 }
