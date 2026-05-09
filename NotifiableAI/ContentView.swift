@@ -5,14 +5,62 @@ struct ContentView: View {
     @EnvironmentObject var harness: TestHarness
 
     var body: some View {
+        TabView {
+            SettingsTab()
+                .tabItem { Label("Settings", systemImage: "gear") }
+
+            LogTab()
+                .tabItem { Label("Log", systemImage: "list.bullet.rectangle") }
+                .badge(harness.log.isEmpty ? 0 : harness.log.count)
+        }
+    }
+}
+
+private struct SettingsTab: View {
+    @EnvironmentObject var harness: TestHarness
+
+    var body: some View {
         NavigationStack {
             Form {
-                connectionSection
-                deviceSection
-                liveActivitySection
-                logSection
+                Section("Connection") {
+                    LabeledTextField(label: "Base URL", text: $harness.baseURLString, keyboard: .URL)
+                    LabeledTextField(label: "Device Write Key", text: $harness.deviceWriteKey, secure: true)
+                }
+
+                Section("Device") {
+                    LabeledTextField(label: "Push Token", text: $harness.pushToken)
+                    Picker("Push Type", selection: $harness.pushType) {
+                        ForEach(PushType.allCases, id: \.self) { t in
+                            Text(t.rawValue).tag(t)
+                        }
+                    }
+                    LabeledTextField(label: "App Version", text: $harness.appVersion)
+                    LabeledTextField(label: "Locale", text: $harness.locale)
+                    LabeledTextField(label: "Device Secret", text: $harness.deviceSecret, secure: true)
+                    HStack {
+                        Button("Register", action: harness.registerDevice)
+                            .buttonStyle(.borderedProminent)
+                        Button("Update", action: harness.updateDevice)
+                        Button("Delete", role: .destructive, action: harness.deleteDevice)
+                    }
+                }
+
+                Section("Live Activity") {
+                    LabeledTextField(label: "Activity ID", text: $harness.activityId)
+                    VStack(alignment: .leading) {
+                        Text("Content State (JSON)").font(.caption).foregroundStyle(.secondary)
+                        TextEditor(text: $harness.contentStateJSON)
+                            .font(.system(.footnote, design: .monospaced))
+                            .frame(minHeight: 60)
+                    }
+                    HStack {
+                        Button("Start", action: harness.startLiveActivity)
+                            .buttonStyle(.borderedProminent)
+                        Button("End", role: .destructive, action: harness.endLiveActivity)
+                    }
+                }
             }
-            .navigationTitle("NotifiableAI Test")
+            .navigationTitle("Settings")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -25,66 +73,38 @@ struct ContentView: View {
             }
         }
     }
+}
 
-    private var connectionSection: some View {
-        Section("Connection") {
-            LabeledTextField(label: "Base URL", text: $harness.baseURLString, keyboard: .URL)
-            LabeledTextField(label: "Device Write Key", text: $harness.deviceWriteKey, secure: true)
-        }
-    }
+private struct LogTab: View {
+    @EnvironmentObject var harness: TestHarness
 
-    private var deviceSection: some View {
-        Section("Device") {
-            LabeledTextField(label: "Push Token", text: $harness.pushToken)
-            Picker("Push Type", selection: $harness.pushType) {
-                ForEach(PushType.allCases, id: \.self) { t in
-                    Text(t.rawValue).tag(t)
+    var body: some View {
+        NavigationStack {
+            Group {
+                if harness.log.isEmpty {
+                    ContentUnavailableView("No activity yet", systemImage: "list.bullet.rectangle", description: Text("Run a request from the Settings tab."))
+                } else {
+                    List {
+                        ForEach(harness.log.reversed()) { entry in
+                            LogRow(entry: entry)
+                        }
+                    }
                 }
             }
-            LabeledTextField(label: "App Version", text: $harness.appVersion)
-            LabeledTextField(label: "Locale", text: $harness.locale)
-            LabeledTextField(label: "Device Secret", text: $harness.deviceSecret, secure: true)
-            HStack {
-                Button("Register", action: harness.registerDevice)
-                    .buttonStyle(.borderedProminent)
-                Button("Update", action: harness.updateDevice)
-                Button("Delete", role: .destructive, action: harness.deleteDevice)
-            }
-        }
-    }
-
-    private var liveActivitySection: some View {
-        Section("Live Activity") {
-            LabeledTextField(label: "Activity ID", text: $harness.activityId)
-            VStack(alignment: .leading) {
-                Text("Content State (JSON)").font(.caption).foregroundStyle(.secondary)
-                TextEditor(text: $harness.contentStateJSON)
-                    .font(.system(.footnote, design: .monospaced))
-                    .frame(minHeight: 60)
-            }
-            HStack {
-                Button("Start", action: harness.startLiveActivity)
-                    .buttonStyle(.borderedProminent)
-                Button("End", role: .destructive, action: harness.endLiveActivity)
-            }
-        }
-    }
-
-    private var logSection: some View {
-        Section {
-            if harness.log.isEmpty {
-                Text("No activity yet").foregroundStyle(.secondary)
-            } else {
-                ForEach(harness.log.reversed()) { entry in
-                    LogRow(entry: entry)
+            .navigationTitle("Log")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    if harness.inFlight > 0 {
+                        ProgressView()
+                    }
                 }
-            }
-        } header: {
-            HStack {
-                Text("Log")
-                Spacer()
-                Button("Clear", action: harness.clearLog)
-                    .font(.caption)
+                ToolbarItem(placement: .automatic) {
+                    Button("Clear", action: harness.clearLog)
+                        .disabled(harness.log.isEmpty)
+                }
             }
         }
     }
