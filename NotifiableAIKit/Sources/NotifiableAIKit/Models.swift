@@ -67,9 +67,3 @@ public enum NotifiableAIError: Error, CustomStringConvertible {
         }
     }
 }
-
-/// Type-erased JSON value for `data` and `content_state` payloads.
-public struct AnyCodable: @unchecked Sendable {
-    public let value: Any
-    public init(_ value: Any) { self.value = value }
-}

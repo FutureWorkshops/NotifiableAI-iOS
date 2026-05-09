@@ -51,11 +51,10 @@ Mirrors `app/controllers/api/v1/*` in the Rails repo:
 
 - `NotifiableAIClient.registerDevice / updateDevice / deleteDevice`
   — `device_write` API key + `X-Device-Secret` header on update/delete.
-- `NotifiableAIClient.startLiveActivity / endLiveActivity`
-  — same auth model. `register` and `startLiveActivity` return a one-time
-  `device_secret` that the caller must persist.
-- `NotifiableAIClient.sendNotification / getNotification`
-  — `server_trigger` API key.
+- `NotifiableAIClient.registerLiveActivity / endLiveActivity`
+  — same auth model. `registerDevice` and `registerLiveActivity` return a one-time
+  `device_secret` that the caller must persist. Live Activity register does
+  NOT accept content state — ActivityKit sets that locally.
 
 All errors surface as `NotifiableAIError` (`.missingAPIKey`, `.http(status:message:)`,
 `.decoding`, `.invalidResponse`).

@@ -74,8 +74,10 @@ The kit only exposes device-write endpoints (the API key kind that's safe to shi
 | `registerDevice` | `POST /api/v1/devices` | `device_write` |
 | `updateDevice` | `PATCH /api/v1/devices/:push_token` | `device_write` + `X-Device-Secret` |
 | `deleteDevice` | `DELETE /api/v1/devices/:push_token` | `device_write` + `X-Device-Secret` |
-| `startLiveActivity` | `POST /api/v1/live_activities` | `device_write` |
+| `registerLiveActivity` | `POST /api/v1/live_activities` | `device_write` |
 | `endLiveActivity` | `DELETE /api/v1/live_activities/:activity_id` | `device_write` + `X-Device-Secret` |
+
+> Live Activities: ActivityKit sets the initial `ContentState` locally on the device. The server only stores the activity's metadata so it can be targeted for pushes — content updates are sent server→device via APNs.
 
 Errors surface as `NotifiableAIError`:
 

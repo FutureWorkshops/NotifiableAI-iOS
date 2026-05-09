@@ -26,7 +26,6 @@ final class TestHarness: ObservableObject {
 
     // Live activity
     @Published var activityId: String = ""
-    @Published var contentStateJSON: String = "{\"status\":\"started\"}"
 
     @Published private(set) var log: [LogEntry] = []
     @Published private(set) var inFlight: Int = 0
@@ -136,17 +135,16 @@ final class TestHarness: ObservableObject {
         }
     }
 
-    func startLiveActivity() {
-        run("Start live activity") { [self] in
+    func registerLiveActivity() {
+        run("Register live activity") { [self] in
             let c = try client()
-            let state = try Self.parseJSONObject(contentStateJSON)
-            let resp = try await c.startLiveActivity(
+            let resp = try await c.registerLiveActivity(
                 activityId: activityId,
-                pushToken: pushToken,
-                contentState: state.mapValues { AnyCodable($0) }
+                pushToken: pushToken
             )
             if let secret = resp.deviceSecret {
                 self.deviceSecret = secret
+                self.persist()
             }
             return "id=\(resp.id) activity=\(resp.activityId)"
         }
@@ -160,11 +158,4 @@ final class TestHarness: ObservableObject {
         }
     }
 
-    private static func parseJSONObject(_ s: String) throws -> [String: Any] {
-        let trimmed = s.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return [:] }
-        guard let data = trimmed.data(using: .utf8) else { return [:] }
-        let obj = try JSONSerialization.jsonObject(with: data)
-        return (obj as? [String: Any]) ?? [:]
-    }
 }

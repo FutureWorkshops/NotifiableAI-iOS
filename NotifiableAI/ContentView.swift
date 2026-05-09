@@ -50,19 +50,17 @@ private struct SettingsTab: View {
                     }
                 }
 
-                Section("Live Activity") {
+                Section {
                     LabeledTextField(label: "Activity ID", text: $harness.activityId)
-                    VStack(alignment: .leading) {
-                        Text("Content State (JSON)").font(.caption).foregroundStyle(.secondary)
-                        TextEditor(text: $harness.contentStateJSON)
-                            .font(.system(.footnote, design: .monospaced))
-                            .frame(minHeight: 60)
-                    }
                     HStack {
-                        Button("Start", action: harness.startLiveActivity)
+                        Button("Register", action: harness.registerLiveActivity)
                             .buttonStyle(.borderedProminent)
                         Button("End", role: .destructive, action: harness.endLiveActivity)
                     }
+                } header: {
+                    Text("Live Activity")
+                } footer: {
+                    Text("ActivityKit sets the initial ContentState locally. Updates are server-pushed via APNs — the server never receives content from the client.")
                 }
             }
             .navigationTitle("Settings")

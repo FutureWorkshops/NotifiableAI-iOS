@@ -68,10 +68,15 @@ public struct NotifiableAIClient: Sendable {
 
     // MARK: - Live Activities
 
-    public func startLiveActivity(
+    /// Register a Live Activity with the server.
+    ///
+    /// The server stores only the metadata it needs to push updates to the activity;
+    /// it does not accept the activity's content state. The initial `ContentState`
+    /// is set locally by ActivityKit on the device, and subsequent updates are
+    /// pushed by your backend through APNs.
+    public func registerLiveActivity(
         activityId: String,
         pushToken: String,
-        contentState: [String: AnyCodable]? = nil,
         appVersion: String? = nil,
         locale: String? = nil
     ) async throws -> LiveActivityResponse {
@@ -81,9 +86,6 @@ public struct NotifiableAIClient: Sendable {
         ]
         if let appVersion { body["app_version"] = appVersion }
         if let locale { body["locale"] = locale }
-        if let contentState {
-            body["content_state"] = contentState.mapValues { $0.value }
-        }
         return try await send(
             method: "POST",
             path: "/api/v1/live_activities",
