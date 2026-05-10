@@ -24,6 +24,10 @@ import Foundation
 /// to the keychain (`KeychainStorage`); inject your own ``NotifiableAIStorage``
 /// to change that.
 public enum NotifiableAI {
+    /// Default NotifiableAI server. Override by passing a custom `baseURL` to
+    /// ``configure(baseURL:apiKey:storage:session:bundle:)``.
+    public static let defaultBaseURL = URL(string: "https://notifiableai.fws.io")!
+
     private static let lock = NSLock()
     nonisolated(unsafe) private static var _config: Config?
 
@@ -42,7 +46,7 @@ public enum NotifiableAI {
     /// Pass a custom ``NotifiableAIStorage`` if you don't want the default
     /// keychain persistence.
     public static func configure(
-        baseURL: URL,
+        baseURL: URL = defaultBaseURL,
         apiKey: String,
         storage: NotifiableAIStorage? = nil,
         session: URLSession = .shared,

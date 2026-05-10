@@ -43,11 +43,10 @@ think about it.
 ```swift
 import NotifiableAIKit
 
-// 1. Configure once at app startup.
-NotifiableAI.configure(
-    baseURL: URL(string: "https://api.notifiable.ai")!,
-    apiKey: "nfk_your_device_write_key"
-)
+// 1. Configure once at app startup. baseURL defaults to
+//    https://notifiableai.fws.io — pass a custom URL for self-hosted
+//    or staging servers.
+NotifiableAI.configure(apiKey: "nfk_your_device_write_key")
 
 // 2. Register from didRegisterForRemoteNotificationsWithDeviceToken.
 func application(_ app: UIApplication,

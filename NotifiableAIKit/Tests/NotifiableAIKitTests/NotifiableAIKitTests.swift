@@ -48,6 +48,10 @@ private func okJSON(_ status: Int = 201, _ object: [String: Any]) -> (HTTPURLRes
     }
 }
 
+@Test func defaultBaseURLIsProduction() {
+    #expect(NotifiableAI.defaultBaseURL.absoluteString == "https://notifiableai.fws.io")
+}
+
 @Test func inMemoryStorageRoundTrip() {
     let s = InMemoryStorage()
     s.setString("v", forKey: "k")
