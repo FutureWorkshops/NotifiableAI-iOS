@@ -64,6 +64,11 @@ try await NotifiableAI.unregister(pushToken: hex)
 persisted state if you need it. Pass a custom `NotifiableAIStorage` to
 `configure(... storage:)` to swap the keychain for something else.
 
+`NotifiableAI.apnsEnvironment` returns `.development` / `.production` /
+`.unknown` based on the embedded provisioning profile, so you can route
+the push token to the matching APNs gateway server-side or surface it for
+debugging.
+
 For runtime configuration switching (multi-environment debug tools, the bundled
 TestApp, etc.) drop down to `NotifiableAIClient`:
 

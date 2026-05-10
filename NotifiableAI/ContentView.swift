@@ -29,6 +29,7 @@ private struct SettingsTab: View {
                 }
 
                 Section("Device") {
+                    LabeledReadOnlyField(label: "APNs Environment", value: NotifiableAI.apnsEnvironment.rawValue)
                     LabeledReadOnlyField(label: "Push Token", value: harness.pushToken)
                     Picker("Push Type", selection: $harness.pushType) {
                         ForEach(PushType.allCases, id: \.self) { t in

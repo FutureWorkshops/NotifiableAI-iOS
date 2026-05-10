@@ -48,6 +48,50 @@ private func okJSON(_ status: Int = 201, _ object: [String: Any]) -> (HTTPURLRes
     }
 }
 
+@Test(arguments: [
+    ("development", APNSEnvironment.development),
+    ("production", APNSEnvironment.production)
+])
+func parsesAPSEnvironmentFromProvisioningProfile(raw: String, expected: APNSEnvironment) {
+    let blob = makeProvisioningProfile(apsEnvironment: raw)
+    #expect(APNSEnvironmentParser.parse(provisioningProfile: blob) == expected)
+}
+
+@Test func returnsUnknownForGarbageProvisioningProfile() {
+    #expect(APNSEnvironmentParser.parse(provisioningProfile: Data([0xff, 0xfe, 0xfd])) == .unknown)
+}
+
+@Test func returnsUnknownWhenApsEntitlementMissing() {
+    let blob = makeProvisioningProfile(extraXML: "")  // no aps-environment
+    #expect(APNSEnvironmentParser.parse(provisioningProfile: blob) == .unknown)
+}
+
+private func makeProvisioningProfile(apsEnvironment: String? = nil, extraXML: String? = nil) -> Data {
+    let entitlement: String
+    if let apsEnvironment {
+        entitlement = "<key>aps-environment</key><string>\(apsEnvironment)</string>"
+    } else {
+        entitlement = extraXML ?? ""
+    }
+    let plist = """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+    <dict>
+        <key>Entitlements</key>
+        <dict>
+            \(entitlement)
+        </dict>
+    </dict>
+    </plist>
+    """
+    // Wrap in pretend CMS envelope bytes — the parser scans for <?xml...</plist>.
+    var data = Data([0x30, 0x82, 0x00, 0x00]) // bogus DER prefix
+    data.append(plist.data(using: .ascii)!)
+    data.append(Data([0x00, 0x01, 0x02])) // bogus DER suffix
+    return data
+}
+
 @Test func defaultBaseURLIsProduction() {
     #expect(NotifiableAI.defaultBaseURL.absoluteString == "https://notifiableai.fws.io")
 }
