@@ -103,7 +103,8 @@ final class TestHarness: ObservableObject {
                 pushToken: pushToken,
                 pushType: pushType,
                 appVersion: appVersion.isEmpty ? nil : appVersion,
-                locale: locale.isEmpty ? nil : locale
+                locale: locale.isEmpty ? nil : locale,
+                apnsEnvironment: NotifiableAI.apnsEnvironment
             )
             if let secret = resp.deviceSecret {
                 self.deviceSecret = secret

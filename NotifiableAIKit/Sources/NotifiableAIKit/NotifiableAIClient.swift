@@ -21,13 +21,15 @@ public struct NotifiableAIClient: Sendable {
         pushToken: String,
         pushType: PushType = .alert,
         appVersion: String? = nil,
-        locale: String? = nil
+        locale: String? = nil,
+        apnsEnvironment: APNSEnvironment? = nil
     ) async throws -> DeviceResponse {
         let body: [String: Any?] = [
             "push_token": pushToken,
             "push_type": pushType.rawValue,
             "app_version": appVersion,
-            "locale": locale
+            "locale": locale,
+            "apns_environment": apnsEnvironment?.rawValue
         ]
         return try await send(
             method: "POST",

@@ -28,6 +28,24 @@ private func stubbedSession() -> URLSession {
     return URLSession(configuration: cfg)
 }
 
+private extension URLRequest {
+    /// Drains httpBodyStream into a Data, since URLProtocol turns httpBody into a stream.
+    var bodyData: Data {
+        if let data = httpBody { return data }
+        guard let stream = httpBodyStream else { return Data() }
+        stream.open()
+        defer { stream.close() }
+        var data = Data()
+        var buf = [UInt8](repeating: 0, count: 4096)
+        while stream.hasBytesAvailable {
+            let read = stream.read(&buf, maxLength: buf.count)
+            if read <= 0 { break }
+            data.append(buf, count: read)
+        }
+        return data
+    }
+}
+
 private func okJSON(_ status: Int = 201, _ object: [String: Any]) -> (HTTPURLResponse, Data) {
     let data = try! JSONSerialization.data(withJSONObject: object)
     let response = HTTPURLResponse(
@@ -145,6 +163,22 @@ struct NotifiableAINamespaceTests {
         #expect(response.deviceSecret == "sek_xyz")
         #expect(NotifiableAI.deviceSecret == "sek_xyz")
         #expect(NotifiableAI.deviceId == 42)
+    }
+
+    @Test func registerSendsApnsEnvironmentInPayload() async throws {
+        StubURLProtocol.handler = { req in
+            let json = try! JSONSerialization.jsonObject(with: req.bodyData) as! [String: Any]
+            #expect(json["apns_environment"] as? String == "production")
+            #expect(json["push_token"] as? String == "tok")
+            return okJSON(201, ["id": 1, "push_token": "tok", "device_secret": "s"])
+        }
+        NotifiableAI.configure(
+            baseURL: URL(string: "https://example.test")!,
+            apiKey: "the_key",
+            storage: InMemoryStorage(),
+            session: stubbedSession()
+        )
+        _ = try await NotifiableAI.register(pushToken: "tok", apnsEnvironment: .production)
     }
 
     @Test func unregisterClearsPersistedState() async throws {

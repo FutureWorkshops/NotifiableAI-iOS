@@ -78,14 +78,16 @@ public enum NotifiableAI {
         pushToken: String,
         pushType: PushType = .alert,
         appVersion: String? = nil,
-        locale: String? = nil
+        locale: String? = nil,
+        apnsEnvironment: APNSEnvironment? = nil
     ) async throws -> DeviceResponse {
         let cfg = try config()
         let response = try await cfg.client.registerDevice(
             pushToken: pushToken,
             pushType: pushType,
             appVersion: appVersion ?? Self.defaultAppVersion(bundle: cfg.bundle),
-            locale: locale ?? Locale.current.identifier
+            locale: locale ?? Locale.current.identifier,
+            apnsEnvironment: apnsEnvironment ?? Self.apnsEnvironment
         )
         if let secret = response.deviceSecret {
             cfg.storage.setString(secret, forKey: Keys.deviceSecret)

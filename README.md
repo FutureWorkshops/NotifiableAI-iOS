@@ -67,7 +67,10 @@ persisted state if you need it. Pass a custom `NotifiableAIStorage` to
 `NotifiableAI.apnsEnvironment` returns `.development` / `.production` /
 `.unknown` based on the embedded provisioning profile, so you can route
 the push token to the matching APNs gateway server-side or surface it for
-debugging.
+debugging. The `register` call sends this value in the `apns_environment`
+field automatically — the server rejects mismatched (or missing) values
+with a 422 to surface dev/prod build confusion at register time rather
+than silently failing on the next push.
 
 For runtime configuration switching (multi-environment debug tools, the bundled
 TestApp, etc.) drop down to `NotifiableAIClient`:
