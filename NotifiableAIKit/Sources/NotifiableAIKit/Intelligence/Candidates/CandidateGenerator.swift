@@ -1,6 +1,6 @@
 import Foundation
 
-extension NotifiableAIIntelligence {
+extension NotifiableIntelligence {
     /// Host-app supplied source of candidate events for a single domain.
     ///
     /// The Intelligence layer does not yet schedule generators — host apps

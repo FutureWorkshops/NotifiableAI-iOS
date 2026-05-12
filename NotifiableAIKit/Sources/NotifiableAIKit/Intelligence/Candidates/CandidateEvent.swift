@@ -1,6 +1,6 @@
 import Foundation
 
-extension NotifiableAIIntelligence {
+extension NotifiableIntelligence {
     /// A potentially-alertable event surfaced by the host app.
     ///
     /// The Intelligence layer does not generate candidates itself; the host

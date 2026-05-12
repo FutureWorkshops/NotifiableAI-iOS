@@ -2,9 +2,9 @@ import Foundation
 
 /// Pure given inputs. Snapshot-testable. Internal to the package.
 struct ContextAssembler: Sendable {
-    typealias Preference = NotifiableAIIntelligence.Preference
-    typealias CandidateEvent = NotifiableAIIntelligence.CandidateEvent
-    typealias RecordedAlert = NotifiableAIIntelligence.RecordedAlert
+    typealias Preference = NotifiableIntelligence.Preference
+    typealias CandidateEvent = NotifiableIntelligence.CandidateEvent
+    typealias RecordedAlert = NotifiableIntelligence.RecordedAlert
 
     let tokenizer: Tokenizer
     let now: @Sendable () -> Date
@@ -120,7 +120,7 @@ struct ContextAssembler: Sendable {
 
 struct AssembledContext: Sendable {
     let xml: String
-    let droppedPreferences: [NotifiableAIIntelligence.Preference]
+    let droppedPreferences: [NotifiableIntelligence.Preference]
     let estimatedTokens: Int
 }
 

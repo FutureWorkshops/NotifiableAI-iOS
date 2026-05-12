@@ -57,9 +57,9 @@ struct CandidatesTab: View {
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                         Picker("", selection: $draft.confidence) {
-                            Text("Explicit").tag(NotifiableAIIntelligence.Confidence.explicit)
-                            Text("Inferred").tag(NotifiableAIIntelligence.Confidence.inferred)
-                            Text("Decayed").tag(NotifiableAIIntelligence.Confidence.decayed)
+                            Text("Explicit").tag(NotifiableIntelligence.Confidence.explicit)
+                            Text("Inferred").tag(NotifiableIntelligence.Confidence.inferred)
+                            Text("Decayed").tag(NotifiableIntelligence.Confidence.decayed)
                         }
                         .pickerStyle(.menu)
                         .labelsHidden()

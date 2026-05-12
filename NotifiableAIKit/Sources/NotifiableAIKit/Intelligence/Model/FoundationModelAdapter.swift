@@ -4,12 +4,12 @@ import Foundation
 import FoundationModels
 #endif
 
-extension NotifiableAIIntelligence {
+extension NotifiableIntelligence {
     /// ``ModelAdapter`` that runs decisions through Apple's on-device
     /// Foundation Models framework.
     ///
     /// On older OSes (or platforms where `FoundationModels` is unavailable)
-    /// every call throws ``NotifiableAIIntelligenceError/foundationModelUnavailable``.
+    /// every call throws ``NotifiableIntelligenceError/foundationModelUnavailable``.
     public struct FoundationModelAdapter: ModelAdapter {
         public init() {}
 
@@ -29,7 +29,7 @@ extension NotifiableAIIntelligence {
                 )
             }
             #endif
-            throw NotifiableAIIntelligenceError.foundationModelUnavailable
+            throw NotifiableIntelligenceError.foundationModelUnavailable
         }
 
         #if canImport(FoundationModels)
@@ -42,7 +42,7 @@ extension NotifiableAIIntelligence {
         ) async throws -> Schema {
             let model = SystemLanguageModel.default
             guard model.availability == .available else {
-                throw NotifiableAIIntelligenceError.foundationModelUnavailable
+                throw NotifiableIntelligenceError.foundationModelUnavailable
             }
 
             let session = LanguageModelSession(model: model, instructions: systemPrompt)
@@ -69,12 +69,12 @@ extension NotifiableAIIntelligence {
                 json = trimmed
             }
             guard let data = json.data(using: .utf8) else {
-                throw NotifiableAIIntelligenceError.decisionValidationFailed(reason: "Model response was not UTF-8")
+                throw NotifiableIntelligenceError.decisionValidationFailed(reason: "Model response was not UTF-8")
             }
             do {
                 return try JSONDecoder().decode(Schema.self, from: data)
             } catch {
-                throw NotifiableAIIntelligenceError.decisionValidationFailed(reason: "Model response JSON did not match schema: \(error)")
+                throw NotifiableIntelligenceError.decisionValidationFailed(reason: "Model response JSON did not match schema: \(error)")
             }
         }
     }

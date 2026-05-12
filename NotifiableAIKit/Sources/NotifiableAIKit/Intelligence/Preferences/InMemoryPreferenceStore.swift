@@ -1,6 +1,6 @@
 import Foundation
 
-extension NotifiableAIIntelligence {
+extension NotifiableIntelligence {
     /// Actor-isolated, non-persistent ``PreferenceStore`` implementation.
     ///
     /// Used in tests and demo / preview contexts. State vanishes when the

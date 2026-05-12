@@ -1,6 +1,6 @@
 import Foundation
 
-extension NotifiableAIIntelligence {
+extension NotifiableIntelligence {
     /// A typed preference belonging to a domain.
     public struct Preference: Sendable, Codable, Equatable {
         public let domain: String

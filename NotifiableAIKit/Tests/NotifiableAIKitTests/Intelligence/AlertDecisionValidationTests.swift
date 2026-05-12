@@ -3,25 +3,25 @@ import Foundation
 @testable import NotifiableAIKit
 
 @Suite struct AlertDecisionValidationTests {
-    typealias Decision = NotifiableAIIntelligence.AlertDecision
+    typealias Decision = NotifiableIntelligence.AlertDecision
 
     @Test func rejectsShouldAlertWithMissingCandidateId() {
         let d = Decision(shouldAlert: true, candidateId: nil, headline: "h", body: "b", priority: .low, suppressFor: nil)
-        #expect(throws: NotifiableAIIntelligenceError.self) {
+        #expect(throws: NotifiableIntelligenceError.self) {
             try d.validate(truncating: { _, _ in })
         }
     }
 
     @Test func rejectsShouldAlertWithMissingHeadline() {
         let d = Decision(shouldAlert: true, candidateId: "c", headline: nil, body: "b", priority: .low, suppressFor: nil)
-        #expect(throws: NotifiableAIIntelligenceError.self) {
+        #expect(throws: NotifiableIntelligenceError.self) {
             try d.validate(truncating: { _, _ in })
         }
     }
 
     @Test func rejectsShouldAlertWithMissingBody() {
         let d = Decision(shouldAlert: true, candidateId: "c", headline: "h", body: nil, priority: .low, suppressFor: nil)
-        #expect(throws: NotifiableAIIntelligenceError.self) {
+        #expect(throws: NotifiableIntelligenceError.self) {
             try d.validate(truncating: { _, _ in })
         }
     }

@@ -3,10 +3,10 @@ import Foundation
 @testable import NotifiableAIKit
 
 @Suite struct SuppressionTests {
-    typealias Decision = NotifiableAIIntelligence.AlertDecision
-    typealias Candidate = NotifiableAIIntelligence.CandidateEvent
-    typealias Store = NotifiableAIIntelligence.InMemoryPreferenceStore
-    typealias Recorded = NotifiableAIIntelligence.RecordedAlert
+    typealias Decision = NotifiableIntelligence.AlertDecision
+    typealias Candidate = NotifiableIntelligence.CandidateEvent
+    typealias Store = NotifiableIntelligence.InMemoryPreferenceStore
+    typealias Recorded = NotifiableIntelligence.RecordedAlert
 
     @Test func suppressesWhenRecentAlertExistsForSameSubject() async throws {
         let store = Store()
@@ -23,7 +23,7 @@ import Foundation
         let adapter = MockModelAdapter(.alertDecision(
             Decision(shouldAlert: true, candidateId: "ev-1", headline: "Tee off", body: "Rahm is teeing off.", priority: .medium, suppressFor: nil)
         ))
-        let engine = NotifiableAIIntelligence.Engine(store: store, adapter: adapter)
+        let engine = NotifiableIntelligence.Engine(store: store, adapter: adapter)
 
         let result: Decision = try await engine.decide(
             domain: "golf",
@@ -48,7 +48,7 @@ import Foundation
         let adapter = MockModelAdapter(.alertDecision(
             Decision(shouldAlert: true, candidateId: "ev-1", headline: "Tee off", body: "McIlroy is teeing off.", priority: .high, suppressFor: nil)
         ))
-        let engine = NotifiableAIIntelligence.Engine(store: store, adapter: adapter)
+        let engine = NotifiableIntelligence.Engine(store: store, adapter: adapter)
 
         let result: Decision = try await engine.decide(
             domain: "golf",

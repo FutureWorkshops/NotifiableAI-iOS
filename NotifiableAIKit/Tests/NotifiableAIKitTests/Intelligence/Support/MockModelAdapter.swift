@@ -8,7 +8,7 @@ import Foundation
 /// `contextBlock` so tests can assert on what reached the model.
 actor MockModelAdapterStorage {
     enum Response: Sendable {
-        case alertDecision(NotifiableAIIntelligence.AlertDecision)
+        case alertDecision(NotifiableIntelligence.AlertDecision)
         case raw(Data)
         case error(Error)
     }
@@ -32,7 +32,7 @@ actor MockModelAdapterStorage {
     }
 }
 
-final class MockModelAdapter: NotifiableAIIntelligence.ModelAdapter, Sendable {
+final class MockModelAdapter: NotifiableIntelligence.ModelAdapter, Sendable {
     let storage: MockModelAdapterStorage
 
     init(_ response: MockModelAdapterStorage.Response) {
@@ -43,7 +43,7 @@ final class MockModelAdapter: NotifiableAIIntelligence.ModelAdapter, Sendable {
         systemPrompt: String,
         contextBlock: String,
         schema: Schema.Type,
-        options: NotifiableAIIntelligence.ModelOptions
+        options: NotifiableIntelligence.ModelOptions
     ) async throws -> Schema where Schema: Decodable & Sendable {
         let response = await storage.handle(systemPrompt: systemPrompt, contextBlock: contextBlock)
         switch response {

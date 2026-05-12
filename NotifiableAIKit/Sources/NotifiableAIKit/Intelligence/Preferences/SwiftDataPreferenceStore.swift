@@ -2,7 +2,7 @@ import Foundation
 #if canImport(SwiftData)
 import SwiftData
 
-extension NotifiableAIIntelligence {
+extension NotifiableIntelligence {
     /// SwiftData-backed ``PreferenceStore``.
     ///
     /// The encryption key for the underlying SQLite store is held in the
@@ -38,7 +38,7 @@ extension NotifiableAIIntelligence {
                 }
                 self.container = try ModelContainer(for: schema, configurations: configuration)
             } catch {
-                throw NotifiableAIIntelligenceError.storeUnavailable(underlying: error)
+                throw NotifiableIntelligenceError.storeUnavailable(underlying: error)
             }
         }
 

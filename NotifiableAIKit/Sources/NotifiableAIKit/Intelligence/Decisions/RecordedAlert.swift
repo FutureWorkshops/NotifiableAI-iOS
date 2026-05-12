@@ -1,6 +1,6 @@
 import Foundation
 
-extension NotifiableAIIntelligence {
+extension NotifiableIntelligence {
     /// An alert the engine actually decided to surface.
     ///
     /// Recorded via ``PreferenceStore/recordAlert(_:)`` so future `decide`

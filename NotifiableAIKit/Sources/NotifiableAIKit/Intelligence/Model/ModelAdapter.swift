@@ -1,6 +1,6 @@
 import Foundation
 
-extension NotifiableAIIntelligence {
+extension NotifiableIntelligence {
     /// Pluggable backend that performs the actual model call given a
     /// pre-rendered XML context block.
     public protocol ModelAdapter: Sendable {

@@ -59,11 +59,11 @@ Mirrors `app/controllers/api/v1/*` in the Rails repo:
 All errors surface as `NotifiableAIError` (`.missingAPIKey`, `.http(status:message:)`,
 `.decoding`, `.invalidResponse`).
 
-### NotifiableAIIntelligence (on-device decisioning)
+### NotifiableIntelligence (on-device decisioning)
 
 Second top-level facade, parallel to `NotifiableAI`:
 
-- `NotifiableAIIntelligence.Engine.decide(domain:candidates:schema:options:)` —
+- `NotifiableIntelligence.Engine.decide(domain:candidates:schema:options:)` —
   pull preferences + recent alert history for the domain, assemble a
   structured XML context block, call the on-device Foundation Models LLM,
   validate against the supplied schema, enforce a 120s hard suppression rail,
@@ -72,7 +72,7 @@ Second top-level facade, parallel to `NotifiableAI`:
   `RecordedAlert`, `PreferenceStore` (+ `InMemoryPreferenceStore` and
   `SwiftDataPreferenceStore`), `ModelAdapter` (+ `FoundationModelAdapter`),
   `DecideOptions`.
-- Errors are `NotifiableAIIntelligenceError` (`.foundationModelUnavailable`,
+- Errors are `NotifiableIntelligenceError` (`.foundationModelUnavailable`,
   `.decisionValidationFailed`, `.tokenBudgetExceeded`, `.storeUnavailable`).
 - Internal: `ContextAssembler`, `XMLEscaper`, `Tokenizer`, `SystemPrompts`.
   `OSLog` subsystem `com.futureworkshops.notifiable-ai.intelligence`,

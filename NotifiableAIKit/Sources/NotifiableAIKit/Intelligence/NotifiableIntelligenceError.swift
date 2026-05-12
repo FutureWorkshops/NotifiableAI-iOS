@@ -1,10 +1,10 @@
 import Foundation
 
-/// Errors thrown by ``NotifiableAIIntelligence/Engine`` and its collaborators.
+/// Errors thrown by ``NotifiableIntelligence/Engine`` and its collaborators.
 ///
 /// Sits at module top level, parallel to ``NotifiableAIError``, so `throws`
 /// clauses stay readable.
-public enum NotifiableAIIntelligenceError: Error, Sendable, CustomStringConvertible {
+public enum NotifiableIntelligenceError: Error, Sendable, CustomStringConvertible {
     case foundationModelUnavailable
     case decisionValidationFailed(reason: String)
     case tokenBudgetExceeded(requested: Int, limit: Int)
