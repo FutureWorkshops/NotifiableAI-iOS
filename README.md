@@ -89,6 +89,41 @@ ship in a client). Server-trigger operations such as **sending notifications**
 are intentionally out of scope — those belong in your backend, calling
 NotifiableAI directly with a `server_trigger` key.
 
+## Intelligence (on-device decisioning)
+
+The kit ships a second top-level facade, `NotifiableAIIntelligence`, that runs
+on-device agentic decisions over the user's preferences via Apple's Foundation
+Models framework. Where the `NotifiableAI` facade decides _how_ a notification
+reaches the device, `NotifiableAIIntelligence` decides _whether_ a candidate
+alert is worth showing the user and how it should read.
+
+```swift
+import NotifiableAIKit
+
+let engine = NotifiableAIIntelligence.Engine(
+    store: NotifiableAIIntelligence.InMemoryPreferenceStore(),
+    adapter: NotifiableAIIntelligence.FoundationModelAdapter()
+)
+
+let decision = try await engine.decide(
+    domain: "demo.alerts",
+    candidates: candidateEvents,
+    schema: NotifiableAIIntelligence.AlertDecision.self
+)
+
+if decision.shouldAlert {
+    // Surface the alert via your local notification path.
+}
+```
+
+The Intelligence types require **iOS 18+**. Apple Foundation Models guided
+generation requires **iOS 26+** at runtime; older OSes throw
+`.foundationModelUnavailable`.
+
+The bundled TestApp's Candidates tab exercises this flow end-to-end: author a
+candidate event + a handful of preferences, tap Decide, and see the decoded
+`AlertDecision` appear on the Log tab.
+
 ## API surface
 
 | Method | Endpoint | Auth |
