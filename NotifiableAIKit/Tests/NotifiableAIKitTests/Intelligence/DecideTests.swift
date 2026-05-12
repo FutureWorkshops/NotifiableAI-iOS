@@ -54,4 +54,31 @@ import Foundation
             _ = try await engine.decide(domain: "golf", candidates: [], schema: Decision.self)
         }
     }
+
+    @Test func includesAlertDecisionShapeHintInContext() async throws {
+        let store = Store()
+        let candidate = Candidate(id: "ev-1", type: "t", subject: "s", occursAt: Date(), significance: 0.5)
+        let adapter = MockModelAdapter(.alertDecision(
+            Decision(shouldAlert: false, candidateId: nil, headline: nil, body: nil, priority: .low, suppressFor: nil)
+        ))
+        let engine = NotifiableIntelligence.Engine(store: store, adapter: adapter)
+        _ = try await engine.decide(domain: "d", candidates: [candidate], schema: Decision.self)
+        let context = (await adapter.capturedContextBlock) ?? ""
+        #expect(context.contains("<response_shape>"))
+        #expect(context.contains("shouldAlert"))
+        #expect(context.contains("priority"))
+    }
+
+    @Test func decoderTolerantOfPreambleAndCodeFences() throws {
+        let prosey = """
+        Sure, here's the decision:
+        ```json
+        {"shouldAlert": false, "candidateId": null, "headline": null, "body": null, "priority": "low", "suppressFor": null}
+        ```
+        Let me know if you need adjustments.
+        """
+        let decoded: Decision = try NotifiableIntelligence.FoundationModelAdapter.decodeJSON(prosey, as: Decision.self)
+        #expect(decoded.shouldAlert == false)
+        #expect(decoded.priority == .low)
+    }
 }

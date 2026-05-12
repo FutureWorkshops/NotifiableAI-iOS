@@ -58,23 +58,25 @@ extension NotifiableIntelligence {
         }
         #endif
 
-        private static func decodeJSON<Schema: Decodable>(_ text: String, as type: Schema.Type) throws -> Schema {
-            // Models often wrap JSON in markdown fencing. Strip it.
-            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            let json: String
-            if trimmed.hasPrefix("```") {
-                let withoutOpening = trimmed.replacingOccurrences(of: #"^```(?:json)?\n?"#, with: "", options: .regularExpression)
-                json = withoutOpening.replacingOccurrences(of: #"\n?```$"#, with: "", options: .regularExpression)
-            } else {
-                json = trimmed
+        static func decodeJSON<Schema: Decodable>(_ text: String, as type: Schema.Type) throws -> Schema {
+            // Models often wrap JSON in markdown fencing or surround it with
+            // a short preamble / postscript. Strip fences, then narrow to the
+            // outermost {...} block before decoding.
+            var working = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if working.hasPrefix("```") {
+                working = working.replacingOccurrences(of: #"^```(?:json)?\n?"#, with: "", options: .regularExpression)
+                working = working.replacingOccurrences(of: #"\n?```$"#, with: "", options: .regularExpression)
             }
-            guard let data = json.data(using: .utf8) else {
+            if let firstBrace = working.firstIndex(of: "{"), let lastBrace = working.lastIndex(of: "}"), firstBrace < lastBrace {
+                working = String(working[firstBrace...lastBrace])
+            }
+            guard let data = working.data(using: .utf8) else {
                 throw NotifiableIntelligenceError.decisionValidationFailed(reason: "Model response was not UTF-8")
             }
             do {
                 return try JSONDecoder().decode(Schema.self, from: data)
             } catch {
-                throw NotifiableIntelligenceError.decisionValidationFailed(reason: "Model response JSON did not match schema: \(error)")
+                throw NotifiableIntelligenceError.decisionValidationFailed(reason: "Model response JSON did not match schema: \(error). Raw response: \(text.prefix(400))")
             }
         }
     }

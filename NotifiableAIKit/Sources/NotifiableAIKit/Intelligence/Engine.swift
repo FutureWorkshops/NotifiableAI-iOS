@@ -5,6 +5,27 @@ extension NotifiableIntelligence {
     /// Hard suppression window — see PRD §4.4.
     static let hardSuppressionWindow: TimeInterval = 120
 
+    /// JSON shape hint appended to the model context when the caller requests
+    /// an `AlertDecision`. Without this, the model invents its own key names
+    /// and decoding fails.
+    static let alertDecisionResponseShape = """
+    <response_shape>
+    Return ONLY a JSON object with this exact shape. Use null for fields that don't apply.
+    {
+      "shouldAlert": <true | false>,
+      "candidateId": <string | null>,
+      "headline": <string up to 60 characters | null>,
+      "body": <string up to 120 characters | null>,
+      "priority": <"low" | "medium" | "high">,
+      "suppressFor": <number of seconds, 0 to 86400 | null>
+    }
+
+    If shouldAlert is false, candidateId / headline / body may be null.
+    If shouldAlert is true, candidateId / headline / body must be non-null strings.
+    Do not wrap the JSON in code fences or any other text.
+    </response_shape>
+    """
+
     /// Top-level orchestrator. Owns a ``PreferenceStore`` and a
     /// ``ModelAdapter``, and exposes the ``decide(domain:candidates:schema:options:)``
     /// entry point.
@@ -79,10 +100,20 @@ extension NotifiableIntelligence {
             let modelOptions = ModelOptions(temperature: options.temperature, maxOutputTokens: 256)
             let systemPrompt = options.systemPromptOverride ?? SystemPrompts.decideAlert
 
+            // Append a JSON-shape hint when we know the schema. Foundation
+            // Models has no schema awareness for plain Codable types, so
+            // without this the model invents its own keys and decoding fails.
+            let contextWithShape: String
+            if schema is AlertDecision.Type {
+                contextWithShape = assembled.xml + "\n\n" + NotifiableIntelligence.alertDecisionResponseShape
+            } else {
+                contextWithShape = assembled.xml
+            }
+
             let started = Date()
             let raw = try await adapter.decide(
                 systemPrompt: systemPrompt,
-                contextBlock: assembled.xml,
+                contextBlock: contextWithShape,
                 schema: schema,
                 options: modelOptions
             )
