@@ -12,7 +12,14 @@ let package = Package(
         .library(name: "NotifiableAIKit", targets: ["NotifiableAIKit"])
     ],
     targets: [
-        .target(name: "NotifiableAIKit"),
-        .testTarget(name: "NotifiableAIKitTests", dependencies: ["NotifiableAIKit"])
+        .target(
+            name: "NotifiableAIKit",
+            path: "NotifiableAIKit/Sources/NotifiableAIKit"
+        ),
+        .testTarget(
+            name: "NotifiableAIKitTests",
+            dependencies: ["NotifiableAIKit"],
+            path: "NotifiableAIKit/Tests/NotifiableAIKitTests"
+        )
     ]
 )
