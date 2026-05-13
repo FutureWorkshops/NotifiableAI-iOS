@@ -10,9 +10,6 @@ struct ContentView: View {
             SettingsTab()
                 .tabItem { Label("Settings", systemImage: "gear") }
 
-            CandidatesTab()
-                .tabItem { Label("Candidates", systemImage: "sparkles") }
-
             LogTab()
                 .tabItem { Label("Log", systemImage: "list.bullet.rectangle") }
                 .badge(harness.log.isEmpty ? 0 : harness.log.count)

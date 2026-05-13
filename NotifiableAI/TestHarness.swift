@@ -27,21 +27,6 @@ final class TestHarness: ObservableObject {
     // Live activity
     @Published var activityId: String = ""
 
-    // Intelligence: demo form state
-    @Published var intelligenceDomain: String = "demo.alerts"
-    @Published var tokenBudget: Int = 500
-    @Published var preferenceDrafts: [PreferenceDraft] = [
-        PreferenceDraft(key: "favouritePlayers", value: "mcilroy", confidence: .explicit)
-    ]
-    @Published var candidate: CandidateDraft = CandidateDraft()
-
-    private let intelligenceStore = NotifiableDecide.InMemoryPreferenceStore()
-    private lazy var intelligenceAdapter: any NotifiableDecide.ModelAdapter = NotifiableDecide.FoundationModelAdapter()
-    private lazy var intelligenceEngine = NotifiableDecide.Engine(
-        store: intelligenceStore,
-        adapter: intelligenceAdapter
-    )
-
     @Published private(set) var log: [LogEntry] = []
     @Published private(set) var inFlight: Int = 0
 
@@ -172,87 +157,5 @@ final class TestHarness: ObservableObject {
             try await c.endLiveActivity(activityId: activityId, deviceSecret: deviceSecret)
             return "204"
         }
-    }
-
-    // MARK: - Intelligence: decide
-
-    func decide() {
-        let domain = intelligenceDomain
-        let budget = tokenBudget
-        let prefs = preferenceDrafts.compactMap { $0.toPreference(domain: domain) }
-        let candidate = candidate.toCandidate()
-        run("Decide") { [self] in
-            // Stamp the in-memory store fresh on every call: easier to reason
-            // about for a demo than carrying state across taps.
-            for pref in prefs {
-                try await intelligenceStore.set(pref)
-            }
-            let decision: NotifiableDecide.AlertDecision = try await intelligenceEngine.decide(
-                domain: domain,
-                candidates: [candidate],
-                schema: NotifiableDecide.AlertDecision.self,
-                options: NotifiableDecide.DecideOptions(tokenBudget: budget)
-            )
-            return formatDecision(decision)
-        }
-    }
-
-    private func formatDecision(_ d: NotifiableDecide.AlertDecision) -> String {
-        if d.shouldAlert {
-            return "shouldAlert=true priority=\(d.priority.rawValue) candidate=\(d.candidateId ?? "—") headline=\"\(d.headline ?? "")\" body=\"\(d.body ?? "")\""
-        } else {
-            return "shouldAlert=false priority=\(d.priority.rawValue)"
-        }
-    }
-}
-
-// MARK: - Demo form drafts
-
-struct PreferenceDraft: Identifiable, Equatable {
-    let id = UUID()
-    var key: String = ""
-    var value: String = ""
-    var confidence: NotifiableDecide.Confidence = .explicit
-
-    func toPreference(domain: String) -> NotifiableDecide.Preference? {
-        let trimmedKey = key.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedKey.isEmpty, !trimmedValue.isEmpty else { return nil }
-        return NotifiableDecide.Preference(
-            domain: domain,
-            key: trimmedKey,
-            value: .string(trimmedValue),
-            confidence: confidence,
-            createdAt: Date(),
-            lastConfirmedAt: Date(),
-            ttl: nil
-        )
-    }
-}
-
-struct CandidateDraft: Equatable {
-    var id: String = UUID().uuidString.prefix(8).lowercased()
-    var type: String = "teeingOff"
-    var subject: String = "mcilroy"
-    var occursAt: Date = Date()
-    var significance: Double = 0.7
-    var attributeKey: String = ""
-    var attributeValue: String = ""
-
-    func toCandidate() -> NotifiableDecide.CandidateEvent {
-        var attrs: [String: NotifiableDecide.AttributeValue] = [:]
-        let k = attributeKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        let v = attributeValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !k.isEmpty && !v.isEmpty {
-            attrs[k] = .string(v)
-        }
-        return NotifiableDecide.CandidateEvent(
-            id: id,
-            type: type,
-            subject: subject,
-            occursAt: occursAt,
-            significance: significance,
-            attributes: attrs
-        )
     }
 }
