@@ -35,9 +35,9 @@ final class TestHarness: ObservableObject {
     ]
     @Published var candidate: CandidateDraft = CandidateDraft()
 
-    private let intelligenceStore = NotifiableIntelligence.InMemoryPreferenceStore()
-    private lazy var intelligenceAdapter: any NotifiableIntelligence.ModelAdapter = NotifiableIntelligence.FoundationModelAdapter()
-    private lazy var intelligenceEngine = NotifiableIntelligence.Engine(
+    private let intelligenceStore = NotifiableDecide.InMemoryPreferenceStore()
+    private lazy var intelligenceAdapter: any NotifiableDecide.ModelAdapter = NotifiableDecide.FoundationModelAdapter()
+    private lazy var intelligenceEngine = NotifiableDecide.Engine(
         store: intelligenceStore,
         adapter: intelligenceAdapter
     )
@@ -187,17 +187,17 @@ final class TestHarness: ObservableObject {
             for pref in prefs {
                 try await intelligenceStore.set(pref)
             }
-            let decision: NotifiableIntelligence.AlertDecision = try await intelligenceEngine.decide(
+            let decision: NotifiableDecide.AlertDecision = try await intelligenceEngine.decide(
                 domain: domain,
                 candidates: [candidate],
-                schema: NotifiableIntelligence.AlertDecision.self,
-                options: NotifiableIntelligence.DecideOptions(tokenBudget: budget)
+                schema: NotifiableDecide.AlertDecision.self,
+                options: NotifiableDecide.DecideOptions(tokenBudget: budget)
             )
             return formatDecision(decision)
         }
     }
 
-    private func formatDecision(_ d: NotifiableIntelligence.AlertDecision) -> String {
+    private func formatDecision(_ d: NotifiableDecide.AlertDecision) -> String {
         if d.shouldAlert {
             return "shouldAlert=true priority=\(d.priority.rawValue) candidate=\(d.candidateId ?? "—") headline=\"\(d.headline ?? "")\" body=\"\(d.body ?? "")\""
         } else {
@@ -212,13 +212,13 @@ struct PreferenceDraft: Identifiable, Equatable {
     let id = UUID()
     var key: String = ""
     var value: String = ""
-    var confidence: NotifiableIntelligence.Confidence = .explicit
+    var confidence: NotifiableDecide.Confidence = .explicit
 
-    func toPreference(domain: String) -> NotifiableIntelligence.Preference? {
+    func toPreference(domain: String) -> NotifiableDecide.Preference? {
         let trimmedKey = key.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedKey.isEmpty, !trimmedValue.isEmpty else { return nil }
-        return NotifiableIntelligence.Preference(
+        return NotifiableDecide.Preference(
             domain: domain,
             key: trimmedKey,
             value: .string(trimmedValue),
@@ -239,14 +239,14 @@ struct CandidateDraft: Equatable {
     var attributeKey: String = ""
     var attributeValue: String = ""
 
-    func toCandidate() -> NotifiableIntelligence.CandidateEvent {
-        var attrs: [String: NotifiableIntelligence.AttributeValue] = [:]
+    func toCandidate() -> NotifiableDecide.CandidateEvent {
+        var attrs: [String: NotifiableDecide.AttributeValue] = [:]
         let k = attributeKey.trimmingCharacters(in: .whitespacesAndNewlines)
         let v = attributeValue.trimmingCharacters(in: .whitespacesAndNewlines)
         if !k.isEmpty && !v.isEmpty {
             attrs[k] = .string(v)
         }
-        return NotifiableIntelligence.CandidateEvent(
+        return NotifiableDecide.CandidateEvent(
             id: id,
             type: type,
             subject: subject,

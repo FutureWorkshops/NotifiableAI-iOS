@@ -91,24 +91,24 @@ NotifiableAI directly with a `server_trigger` key.
 
 ## Intelligence (on-device decisioning)
 
-The kit ships a second top-level facade, `NotifiableIntelligence`, that runs
+The kit ships a second top-level facade, `NotifiableDecide`, that runs
 on-device agentic decisions over the user's preferences via Apple's Foundation
 Models framework. Where the `NotifiableAI` facade decides _how_ a notification
-reaches the device, `NotifiableIntelligence` decides _whether_ a candidate
+reaches the device, `NotifiableDecide` decides _whether_ a candidate
 alert is worth showing the user and how it should read.
 
 ```swift
 import NotifiableAIKit
 
-let engine = NotifiableIntelligence.Engine(
-    store: NotifiableIntelligence.InMemoryPreferenceStore(),
-    adapter: NotifiableIntelligence.FoundationModelAdapter()
+let engine = NotifiableDecide.Engine(
+    store: NotifiableDecide.InMemoryPreferenceStore(),
+    adapter: NotifiableDecide.FoundationModelAdapter()
 )
 
 let decision = try await engine.decide(
     domain: "demo.alerts",
     candidates: candidateEvents,
-    schema: NotifiableIntelligence.AlertDecision.self
+    schema: NotifiableDecide.AlertDecision.self
 )
 
 if decision.shouldAlert {

@@ -1,6 +1,6 @@
 import Foundation
 
-extension NotifiableIntelligence {
+extension NotifiableDecide {
     /// Persistent backing for preferences and the recent-alert ledger.
     ///
     /// Conforming types must be safe to call from any async context — the

@@ -3,9 +3,9 @@ import Foundation
 @testable import NotifiableAIKit
 
 @Suite struct DecideTests {
-    typealias Decision = NotifiableIntelligence.AlertDecision
-    typealias Candidate = NotifiableIntelligence.CandidateEvent
-    typealias Store = NotifiableIntelligence.InMemoryPreferenceStore
+    typealias Decision = NotifiableDecide.AlertDecision
+    typealias Candidate = NotifiableDecide.CandidateEvent
+    typealias Store = NotifiableDecide.InMemoryPreferenceStore
 
     @Test func contextBlockContainsCandidateId() async throws {
         let store = Store()
@@ -13,7 +13,7 @@ import Foundation
         let adapter = MockModelAdapter(.alertDecision(
             Decision(shouldAlert: false, candidateId: nil, headline: nil, body: nil, priority: .low, suppressFor: nil)
         ))
-        let engine = NotifiableIntelligence.Engine(store: store, adapter: adapter)
+        let engine = NotifiableDecide.Engine(store: store, adapter: adapter)
         _ = try await engine.decide(domain: "golf", candidates: [candidate], schema: Decision.self)
         let context = (await adapter.capturedContextBlock) ?? ""
         #expect(context.contains("ev-42"))
@@ -26,7 +26,7 @@ import Foundation
         let adapter = MockModelAdapter(.alertDecision(
             Decision(shouldAlert: true, candidateId: "ev-1", headline: "h", body: "b", priority: .high, suppressFor: nil)
         ))
-        let engine = NotifiableIntelligence.Engine(store: store, adapter: adapter)
+        let engine = NotifiableDecide.Engine(store: store, adapter: adapter)
         _ = try await engine.decide(domain: "golf", candidates: [candidate], schema: Decision.self)
         let recent = try await store.recentAlerts(domain: "golf", within: 120)
         #expect(recent.count == 1)
@@ -40,17 +40,17 @@ import Foundation
         let adapter = MockModelAdapter(.alertDecision(
             Decision(shouldAlert: true, candidateId: nil, headline: nil, body: nil, priority: .low, suppressFor: nil)
         ))
-        let engine = NotifiableIntelligence.Engine(store: store, adapter: adapter)
-        await #expect(throws: NotifiableIntelligenceError.self) {
+        let engine = NotifiableDecide.Engine(store: store, adapter: adapter)
+        await #expect(throws: NotifiableDecideError.self) {
             _ = try await engine.decide(domain: "golf", candidates: [candidate], schema: Decision.self)
         }
     }
 
     @Test func propagatesFoundationModelUnavailable() async throws {
         let store = Store()
-        let adapter = MockModelAdapter(.error(NotifiableIntelligenceError.foundationModelUnavailable))
-        let engine = NotifiableIntelligence.Engine(store: store, adapter: adapter)
-        await #expect(throws: NotifiableIntelligenceError.self) {
+        let adapter = MockModelAdapter(.error(NotifiableDecideError.foundationModelUnavailable))
+        let engine = NotifiableDecide.Engine(store: store, adapter: adapter)
+        await #expect(throws: NotifiableDecideError.self) {
             _ = try await engine.decide(domain: "golf", candidates: [], schema: Decision.self)
         }
     }
@@ -61,7 +61,7 @@ import Foundation
         let adapter = MockModelAdapter(.alertDecision(
             Decision(shouldAlert: false, candidateId: nil, headline: nil, body: nil, priority: .low, suppressFor: nil)
         ))
-        let engine = NotifiableIntelligence.Engine(store: store, adapter: adapter)
+        let engine = NotifiableDecide.Engine(store: store, adapter: adapter)
         _ = try await engine.decide(domain: "d", candidates: [candidate], schema: Decision.self)
         let context = (await adapter.capturedContextBlock) ?? ""
         #expect(context.contains("<response_shape>"))
@@ -77,7 +77,7 @@ import Foundation
         ```
         Let me know if you need adjustments.
         """
-        let decoded: Decision = try NotifiableIntelligence.FoundationModelAdapter.decodeJSON(prosey, as: Decision.self)
+        let decoded: Decision = try NotifiableDecide.FoundationModelAdapter.decodeJSON(prosey, as: Decision.self)
         #expect(decoded.shouldAlert == false)
         #expect(decoded.priority == .low)
     }

@@ -3,9 +3,9 @@ import Foundation
 @testable import NotifiableAIKit
 
 @Suite struct InMemoryPreferenceStoreTests {
-    typealias Store = NotifiableIntelligence.InMemoryPreferenceStore
-    typealias Preference = NotifiableIntelligence.Preference
-    typealias RecordedAlert = NotifiableIntelligence.RecordedAlert
+    typealias Store = NotifiableDecide.InMemoryPreferenceStore
+    typealias Preference = NotifiableDecide.Preference
+    typealias RecordedAlert = NotifiableDecide.RecordedAlert
 
     @Test func setAndGetRoundTrip() async throws {
         let store = Store()

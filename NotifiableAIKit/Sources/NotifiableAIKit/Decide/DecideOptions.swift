@@ -1,6 +1,6 @@
 import Foundation
 
-extension NotifiableIntelligence {
+extension NotifiableDecide {
     /// Per-call overrides for ``Engine/decide(domain:candidates:schema:options:)``.
     public struct DecideOptions: Sendable {
         public var tokenBudget: Int

@@ -4,12 +4,12 @@ import Foundation
 import FoundationModels
 #endif
 
-extension NotifiableIntelligence {
+extension NotifiableDecide {
     /// ``ModelAdapter`` that runs decisions through Apple's on-device
     /// Foundation Models framework.
     ///
     /// On older OSes (or platforms where `FoundationModels` is unavailable)
-    /// every call throws ``NotifiableIntelligenceError/foundationModelUnavailable``.
+    /// every call throws ``NotifiableDecideError/foundationModelUnavailable``.
     public struct FoundationModelAdapter: ModelAdapter {
         public init() {}
 
@@ -29,7 +29,7 @@ extension NotifiableIntelligence {
                 )
             }
             #endif
-            throw NotifiableIntelligenceError.foundationModelUnavailable
+            throw NotifiableDecideError.foundationModelUnavailable
         }
 
         #if canImport(FoundationModels)
@@ -42,7 +42,7 @@ extension NotifiableIntelligence {
         ) async throws -> Schema {
             let model = SystemLanguageModel.default
             guard model.availability == .available else {
-                throw NotifiableIntelligenceError.foundationModelUnavailable
+                throw NotifiableDecideError.foundationModelUnavailable
             }
 
             let session = LanguageModelSession(model: model, instructions: systemPrompt)
@@ -71,12 +71,12 @@ extension NotifiableIntelligence {
                 working = String(working[firstBrace...lastBrace])
             }
             guard let data = working.data(using: .utf8) else {
-                throw NotifiableIntelligenceError.decisionValidationFailed(reason: "Model response was not UTF-8")
+                throw NotifiableDecideError.decisionValidationFailed(reason: "Model response was not UTF-8")
             }
             do {
                 return try JSONDecoder().decode(Schema.self, from: data)
             } catch {
-                throw NotifiableIntelligenceError.decisionValidationFailed(reason: "Model response JSON did not match schema: \(error). Raw response: \(text.prefix(400))")
+                throw NotifiableDecideError.decisionValidationFailed(reason: "Model response JSON did not match schema: \(error). Raw response: \(text.prefix(400))")
             }
         }
     }

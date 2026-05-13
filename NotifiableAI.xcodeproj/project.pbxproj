@@ -598,7 +598,7 @@
 /* Begin XCLocalSwiftPackageReference section */
 		AA00000000000000000000A3 /* XCLocalSwiftPackageReference "NotifiableAIKit" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = NotifiableAIKit;
+			relativePath = .;
 		};
 /* End XCLocalSwiftPackageReference section */
 

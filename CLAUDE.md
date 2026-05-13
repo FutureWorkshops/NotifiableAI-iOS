@@ -13,7 +13,7 @@ Monorepo for two related products, in priority order:
      register / end Live Activity). Auto-fills `app_version` + `locale`,
      persists `device_secret` + `device_id` to the keychain, and detects the
      APNs environment from the embedded provisioning profile.
-   - `NotifiableIntelligence` — on-device agentic decisioning over user
+   - `NotifiableDecide` — on-device agentic decisioning over user
      preferences via Apple Foundation Models. `Engine.decide` pulls prefs +
      recent alerts, assembles a structured XML context block, calls the LLM,
      validates the decoded result, and records the alert.
@@ -28,7 +28,7 @@ follow-up commit (recent examples: `apns_environment` required on register,
 
 - Xcode project: `NotifiableAI.xcodeproj` (consumes the local package at
   `./NotifiableAIKit` via `XCLocalSwiftPackageReference`).
-- Package manifest: `NotifiableAIKit/Package.swift`. Floor: iOS 18 (Intelligence
+- Package manifest: `NotifiableAIKit/Package.swift`. Floor: iOS 18 (the Decide
   types require it). Foundation Models guided generation requires iOS 26 at
   runtime — older OSes throw `.foundationModelUnavailable`.
 - App deployment target: iOS 26.2. App is `iphoneos iphonesimulator` only;
@@ -64,9 +64,9 @@ Mirrors `app/controllers/api/v1/*` in the Rails repo:
 Lower-level `NotifiableAIClient` is also public for runtime config switching
 (multi-environment debug tools, the TestApp itself).
 
-### `NotifiableIntelligence` facade (on-device decisioning)
+### `NotifiableDecide` facade (on-device decisioning)
 
-- `NotifiableIntelligence.Engine.decide(domain:candidates:schema:options:)` —
+- `NotifiableDecide.Engine.decide(domain:candidates:schema:options:)` —
   pull preferences + recent alerts for the domain, assemble a structured XML
   context, call the on-device LLM, validate the decoded result, enforce a
   120s hard suppression rail keyed on `(domain, subject)`, and record the
@@ -76,12 +76,12 @@ Lower-level `NotifiableAIClient` is also public for runtime config switching
   `PreferenceStore` (+ `InMemoryPreferenceStore` and
   `SwiftDataPreferenceStore`), `ModelAdapter` (+ `FoundationModelAdapter`),
   `DecideOptions`.
-- Errors: `NotifiableIntelligenceError` (`.foundationModelUnavailable`,
+- Errors: `NotifiableDecideError` (`.foundationModelUnavailable`,
   `.decisionValidationFailed`, `.tokenBudgetExceeded`, `.storeUnavailable`).
 - Internal: `ContextAssembler` (snapshot-testable, pure given inputs),
   `XMLEscaper` (escapes user strings + strips C0 controls), `Tokenizer`
   (`chars / 4`), `SystemPrompts`. `OSLog` subsystem
-  `com.futureworkshops.notifiable-ai.intelligence`, category `decide`.
+  `com.futureworkshops.notifiable-ai.decide`, category `decide`.
 - **JSON schema hint**: `Engine.decide` appends a `<response_shape>` block
   describing the expected JSON keys when `Schema is AlertDecision.Type`.
   Without this the model invents its own key names and decoding fails — the

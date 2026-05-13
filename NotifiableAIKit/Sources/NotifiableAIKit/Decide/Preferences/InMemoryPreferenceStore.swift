@@ -1,6 +1,6 @@
 import Foundation
 
-extension NotifiableIntelligence {
+extension NotifiableDecide {
     /// Actor-isolated, non-persistent ``PreferenceStore`` implementation.
     ///
     /// Used in tests and demo / preview contexts. State vanishes when the

@@ -3,9 +3,9 @@ import Foundation
 @testable import NotifiableAIKit
 
 @Suite struct ContextAssemblerTests {
-    typealias Pref = NotifiableIntelligence.Preference
-    typealias Cand = NotifiableIntelligence.CandidateEvent
-    typealias Alert = NotifiableIntelligence.RecordedAlert
+    typealias Pref = NotifiableDecide.Preference
+    typealias Cand = NotifiableDecide.CandidateEvent
+    typealias Alert = NotifiableDecide.RecordedAlert
 
     /// Fixed reference date so snapshots stay deterministic.
     private static let now = Date(timeIntervalSince1970: 1_770_000_000) // 2026-02-02T02:40:00Z

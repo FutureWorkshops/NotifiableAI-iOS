@@ -2,18 +2,18 @@ import Foundation
 #if canImport(SwiftData)
 import SwiftData
 
-extension NotifiableIntelligence {
+extension NotifiableDecide {
     /// SwiftData-backed ``PreferenceStore``.
     ///
     /// The encryption key for the underlying SQLite store is held in the
     /// keychain via the existing ``KeychainStorage`` helper, under the
-    /// service identifier `com.futureworkshops.notifiable-ai.intelligence.dbkey`.
+    /// service identifier `com.futureworkshops.notifiable-ai.decide.dbkey`.
     ///
     /// Construction is async so the model container can be set up off the
     /// caller's thread.
     @available(iOS 18, macOS 14, *)
     public final class SwiftDataPreferenceStore: PreferenceStore, @unchecked Sendable {
-        public static let keychainService = "com.futureworkshops.notifiable-ai.intelligence.dbkey"
+        public static let keychainService = "com.futureworkshops.notifiable-ai.decide.dbkey"
         public static let keychainKey = "encryption-key"
 
         private let container: ModelContainer
@@ -38,7 +38,7 @@ extension NotifiableIntelligence {
                 }
                 self.container = try ModelContainer(for: schema, configurations: configuration)
             } catch {
-                throw NotifiableIntelligenceError.storeUnavailable(underlying: error)
+                throw NotifiableDecideError.storeUnavailable(underlying: error)
             }
         }
 

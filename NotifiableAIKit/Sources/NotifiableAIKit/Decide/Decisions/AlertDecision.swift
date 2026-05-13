@@ -1,6 +1,6 @@
 import Foundation
 
-extension NotifiableIntelligence {
+extension NotifiableDecide {
     /// A decoded alert decision returned by ``Engine/decide(domain:candidates:schema:options:)``.
     ///
     /// Host apps with different decision shapes define their own `Codable`
@@ -45,7 +45,7 @@ extension NotifiableIntelligence {
 
         /// Apply post-decoding validation per the PRD §3.4 rules.
         ///
-        /// - Throws ``NotifiableIntelligenceError/decisionValidationFailed`` if
+        /// - Throws ``NotifiableDecideError/decisionValidationFailed`` if
         ///   `shouldAlert == true` and any of `candidateId`, `headline`, `body` is
         ///   nil or empty.
         /// - Returns a possibly-truncated/clamped copy of `self`.
@@ -54,13 +54,13 @@ extension NotifiableIntelligence {
         func validate(truncating: (String, String) -> Void) throws -> AlertDecision {
             if shouldAlert {
                 guard let candidateId, !candidateId.isEmpty else {
-                    throw NotifiableIntelligenceError.decisionValidationFailed(reason: "shouldAlert=true but candidateId is missing")
+                    throw NotifiableDecideError.decisionValidationFailed(reason: "shouldAlert=true but candidateId is missing")
                 }
                 guard let headline, !headline.isEmpty else {
-                    throw NotifiableIntelligenceError.decisionValidationFailed(reason: "shouldAlert=true but headline is missing")
+                    throw NotifiableDecideError.decisionValidationFailed(reason: "shouldAlert=true but headline is missing")
                 }
                 guard let body, !body.isEmpty else {
-                    throw NotifiableIntelligenceError.decisionValidationFailed(reason: "shouldAlert=true but body is missing")
+                    throw NotifiableDecideError.decisionValidationFailed(reason: "shouldAlert=true but body is missing")
                 }
                 _ = candidateId
                 let trimmedHeadline = Self.truncateWithEllipsis(headline, limit: Self.headlineLimit, original: headline, log: truncating)

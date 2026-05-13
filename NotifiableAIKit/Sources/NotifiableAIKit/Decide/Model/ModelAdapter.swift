@@ -1,6 +1,6 @@
 import Foundation
 
-extension NotifiableIntelligence {
+extension NotifiableDecide {
     /// Pluggable backend that performs the actual model call given a
     /// pre-rendered XML context block.
     public protocol ModelAdapter: Sendable {
