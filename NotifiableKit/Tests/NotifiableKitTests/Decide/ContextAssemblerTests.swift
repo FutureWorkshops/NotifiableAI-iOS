@@ -100,6 +100,26 @@ import Foundation
         #expect(ctx.xml.contains(">v&lt;&gt;<"))
     }
 
+    @Test(arguments: [
+        (45.0, "45 s"),
+        (60.0, "1 min"),
+        (360.0, "6 min"),
+        (3_660.0, "1 h 1 min"),
+        (7_200.0, "2 h")
+    ])
+    func durationAttributeRendersHumanReadable(seconds: TimeInterval, expected: String) {
+        #expect(NotifiableDecide.AttributeValue.formatDuration(seconds) == expected)
+    }
+
+    @Test func renderedDurationFlowsThroughTheAssembler() {
+        let cands = [
+            Cand(id: "1", type: "approach", subject: "rahm", occursAt: Self.now, significance: 0.5, attributes: ["walkingMinutes": .duration(360)])
+        ]
+        let ctx = Self.assembler.assemble(domain: "d", preferences: [], candidates: cands, recentAlerts: [], budget: 10_000, includeDecayed: false)
+        #expect(ctx.xml.contains(">6 min<"))
+        #expect(!ctx.xml.contains(">360<"))
+    }
+
     @Test func includesOnlyRecentAlertsWithinTheHour() {
         let alerts = [
             Alert(domain: "d", subject: "fresh", type: "t", shownAt: Self.now.addingTimeInterval(-60)),

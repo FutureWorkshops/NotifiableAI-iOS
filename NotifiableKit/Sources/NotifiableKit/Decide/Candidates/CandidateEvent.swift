@@ -93,8 +93,24 @@ extension NotifiableDecide {
             case .string(let s): return s
             case .number(let n): return String(n)
             case .bool(let b): return b ? "true" : "false"
-            case .duration(let d): return String(d)
+            case .duration(let d): return Self.formatDuration(d)
             }
+        }
+
+        /// Render a `TimeInterval` as a short, human-readable string the model
+        /// can drop straight into alert text. Raw seconds (`360`) are
+        /// meaningless to a small on-device LLM without unit conversion.
+        static func formatDuration(_ seconds: TimeInterval) -> String {
+            let total = Int(seconds.rounded())
+            if total < 60 { return "\(total) s" }
+            let minutes = total / 60
+            let remSeconds = total % 60
+            if minutes < 60 {
+                return remSeconds == 0 ? "\(minutes) min" : "\(minutes) min \(remSeconds) s"
+            }
+            let hours = minutes / 60
+            let remMinutes = minutes % 60
+            return remMinutes == 0 ? "\(hours) h" : "\(hours) h \(remMinutes) min"
         }
     }
 }
