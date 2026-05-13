@@ -1,6 +1,6 @@
 import Foundation
 
-public struct NotifiableAIClient: Sendable {
+public struct NotifiableRemoteClient: Sendable {
     public let baseURL: URL
     public var deviceWriteKey: String?
     public var session: URLSession
@@ -115,7 +115,7 @@ public struct NotifiableAIClient: Sendable {
         allowEmpty: Bool = false
     ) async throws -> T {
         guard let token = deviceWriteKey, !token.isEmpty else {
-            throw NotifiableAIError.missingAPIKey("device_write")
+            throw NotifiableRemoteError.missingAPIKey("device_write")
         }
 
         let url = baseURL.appendingPathComponent(path.hasPrefix("/") ? String(path.dropFirst()) : path)
@@ -132,12 +132,12 @@ public struct NotifiableAIClient: Sendable {
 
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse else {
-            throw NotifiableAIError.invalidResponse
+            throw NotifiableRemoteError.invalidResponse
         }
 
         guard (200..<300).contains(http.statusCode) else {
             let message = (try? JSONDecoder().decode(ErrorBody.self, from: data))?.error
-            throw NotifiableAIError.http(status: http.statusCode, message: message)
+            throw NotifiableRemoteError.http(status: http.statusCode, message: message)
         }
 
         if allowEmpty, data.isEmpty || http.statusCode == 204 {
@@ -149,7 +149,7 @@ public struct NotifiableAIClient: Sendable {
         do {
             return try decoder.decode(T.self, from: data)
         } catch {
-            throw NotifiableAIError.decoding(error)
+            throw NotifiableRemoteError.decoding(error)
         }
     }
 

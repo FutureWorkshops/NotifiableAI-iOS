@@ -7,13 +7,13 @@ extension NotifiableDecide {
     ///
     /// The encryption key for the underlying SQLite store is held in the
     /// keychain via the existing ``KeychainStorage`` helper, under the
-    /// service identifier `com.futureworkshops.notifiable-ai.decide.dbkey`.
+    /// service identifier `com.futureworkshops.notifiable.decide.dbkey`.
     ///
     /// Construction is async so the model container can be set up off the
     /// caller's thread.
     @available(iOS 18, macOS 14, *)
     public final class SwiftDataPreferenceStore: PreferenceStore, @unchecked Sendable {
-        public static let keychainService = "com.futureworkshops.notifiable-ai.decide.dbkey"
+        public static let keychainService = "com.futureworkshops.notifiable.decide.dbkey"
         public static let keychainKey = "encryption-key"
 
         private let container: ModelContainer
@@ -23,7 +23,7 @@ extension NotifiableDecide {
         /// keychain on first run if one isn't already present.
         public init(
             url: URL? = nil,
-            keychain: NotifiableAIStorage = KeychainStorage(service: SwiftDataPreferenceStore.keychainService)
+            keychain: NotifiableRemoteStorage = KeychainStorage(service: SwiftDataPreferenceStore.keychainService)
         ) async throws {
             do {
                 if keychain.string(forKey: Self.keychainKey) == nil {

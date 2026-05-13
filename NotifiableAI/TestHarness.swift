@@ -1,6 +1,6 @@
 import Foundation
 import Combine
-import NotifiableAIKit
+import NotifiableKit
 
 @MainActor
 final class TestHarness: ObservableObject {
@@ -80,11 +80,11 @@ final class TestHarness: ObservableObject {
 
     func clearLog() { log.removeAll() }
 
-    private func client() throws -> NotifiableAIClient {
+    private func client() throws -> NotifiableRemoteClient {
         guard let url = URL(string: baseURLString), url.scheme != nil else {
-            throw NotifiableAIError.invalidResponse
+            throw NotifiableRemoteError.invalidResponse
         }
-        return NotifiableAIClient(
+        return NotifiableRemoteClient(
             baseURL: url,
             deviceWriteKey: deviceWriteKey.isEmpty ? nil : deviceWriteKey
         )
@@ -119,7 +119,7 @@ final class TestHarness: ObservableObject {
                 pushType: pushType,
                 appVersion: appVersion.isEmpty ? nil : appVersion,
                 locale: locale.isEmpty ? nil : locale,
-                apnsEnvironment: NotifiableAI.apnsEnvironment
+                apnsEnvironment: NotifiableRemote.apnsEnvironment
             )
             if let secret = resp.deviceSecret {
                 self.deviceSecret = secret

@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-@testable import NotifiableAIKit
+@testable import NotifiableKit
 
 // MARK: - Test stub for URLProtocol
 
@@ -60,8 +60,8 @@ private func okJSON(_ status: Int = 201, _ object: [String: Any]) -> (HTTPURLRes
 // MARK: - Standalone tests
 
 @Test func missingDeviceWriteKeyThrows() async {
-    let client = NotifiableAIClient(baseURL: URL(string: "https://example.test")!)
-    await #expect(throws: NotifiableAIError.self) {
+    let client = NotifiableRemoteClient(baseURL: URL(string: "https://example.test")!)
+    await #expect(throws: NotifiableRemoteError.self) {
         _ = try await client.registerDevice(pushToken: "abc")
     }
 }
@@ -111,7 +111,7 @@ private func makeProvisioningProfile(apsEnvironment: String? = nil, extraXML: St
 }
 
 @Test func defaultBaseURLIsProduction() {
-    #expect(NotifiableAI.defaultBaseURL.absoluteString == "https://notifiableai.fws.io")
+    #expect(NotifiableRemote.defaultBaseURL.absoluteString == "https://notifiableai.fws.io")
 }
 
 @Test func inMemoryStorageRoundTrip() {
@@ -122,21 +122,21 @@ private func makeProvisioningProfile(apsEnvironment: String? = nil, extraXML: St
     #expect(s.string(forKey: "k") == nil)
 }
 
-// MARK: - NotifiableAI namespace (serialized — global config + shared URLProtocol handler)
+// MARK: - NotifiableRemote namespace (serialized — global config + shared URLProtocol handler)
 
 @Suite(.serialized)
-struct NotifiableAINamespaceTests {
+struct NotifiableRemoteNamespaceTests {
 
     @Test func updateBeforeRegisterThrowsDeviceNotRegistered() async {
         StubURLProtocol.handler = { _ in okJSON(200, [:]) } // never reached
-        NotifiableAI.configure(
+        NotifiableRemote.configure(
             baseURL: URL(string: "https://example.test")!,
             apiKey: "k",
             storage: InMemoryStorage(),
             session: stubbedSession()
         )
-        await #expect(throws: NotifiableAIError.self) {
-            _ = try await NotifiableAI.update(pushToken: "tok")
+        await #expect(throws: NotifiableRemoteError.self) {
+            _ = try await NotifiableRemote.update(pushToken: "tok")
         }
     }
 
@@ -152,17 +152,17 @@ struct NotifiableAINamespaceTests {
                 "device_secret": "sek_xyz"
             ])
         }
-        NotifiableAI.configure(
+        NotifiableRemote.configure(
             baseURL: URL(string: "https://example.test")!,
             apiKey: "the_key",
             storage: storage,
             session: stubbedSession()
         )
-        let response = try await NotifiableAI.register(pushToken: "abc")
+        let response = try await NotifiableRemote.register(pushToken: "abc")
         #expect(response.id == 42)
         #expect(response.deviceSecret == "sek_xyz")
-        #expect(NotifiableAI.deviceSecret == "sek_xyz")
-        #expect(NotifiableAI.deviceId == 42)
+        #expect(NotifiableRemote.deviceSecret == "sek_xyz")
+        #expect(NotifiableRemote.deviceId == 42)
     }
 
     @Test func registerSendsApnsEnvironmentInPayload() async throws {
@@ -172,33 +172,33 @@ struct NotifiableAINamespaceTests {
             #expect(json["push_token"] as? String == "tok")
             return okJSON(201, ["id": 1, "push_token": "tok", "device_secret": "s"])
         }
-        NotifiableAI.configure(
+        NotifiableRemote.configure(
             baseURL: URL(string: "https://example.test")!,
             apiKey: "the_key",
             storage: InMemoryStorage(),
             session: stubbedSession()
         )
-        _ = try await NotifiableAI.register(pushToken: "tok", apnsEnvironment: .production)
+        _ = try await NotifiableRemote.register(pushToken: "tok", apnsEnvironment: .production)
     }
 
     @Test func unregisterClearsPersistedState() async throws {
         let storage = InMemoryStorage()
-        storage.setString("sek_xyz", forKey: NotifiableAI.Keys.deviceSecret)
-        storage.setString("42", forKey: NotifiableAI.Keys.deviceId)
+        storage.setString("sek_xyz", forKey: NotifiableRemote.Keys.deviceSecret)
+        storage.setString("42", forKey: NotifiableRemote.Keys.deviceId)
         StubURLProtocol.handler = { req in
             #expect(req.httpMethod == "DELETE")
             #expect(req.value(forHTTPHeaderField: "X-Device-Secret") == "sek_xyz")
             let response = HTTPURLResponse(url: req.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!
             return (response, Data())
         }
-        NotifiableAI.configure(
+        NotifiableRemote.configure(
             baseURL: URL(string: "https://example.test")!,
             apiKey: "the_key",
             storage: storage,
             session: stubbedSession()
         )
-        try await NotifiableAI.unregister(pushToken: "abc")
-        #expect(NotifiableAI.deviceSecret == nil)
-        #expect(NotifiableAI.deviceId == nil)
+        try await NotifiableRemote.unregister(pushToken: "abc")
+        #expect(NotifiableRemote.deviceSecret == nil)
+        #expect(NotifiableRemote.deviceId == nil)
     }
 }

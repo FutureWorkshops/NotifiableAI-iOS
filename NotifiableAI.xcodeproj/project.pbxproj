@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AA00000000000000000000A1 /* NotifiableAIKit in Frameworks */ = {isa = PBXBuildFile; productRef = AA00000000000000000000A2 /* NotifiableAIKit */; };
+		AA00000000000000000000A1 /* NotifiableKit in Frameworks */ = {isa = PBXBuildFile; productRef = AA00000000000000000000A2 /* NotifiableKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,7 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AA00000000000000000000A1 /* NotifiableAIKit in Frameworks */,
+				AA00000000000000000000A1 /* NotifiableKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -117,7 +117,7 @@
 			);
 			name = NotifiableAI;
 			packageProductDependencies = (
-				AA00000000000000000000A2 /* NotifiableAIKit */,
+				AA00000000000000000000A2 /* NotifiableKit */,
 			);
 			productName = NotifiableAI;
 			productReference = C94C85DC2FADD29000DF4C48 /* NotifiableAI.app */;
@@ -202,7 +202,7 @@
 			mainGroup = C94C85D32FADD29000DF4C48;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				AA00000000000000000000A3 /* XCLocalSwiftPackageReference "NotifiableAIKit" */,
+				AA00000000000000000000A3 /* XCLocalSwiftPackageReference "NotifiableKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C94C85DD2FADD29000DF4C48 /* Products */;
@@ -596,16 +596,16 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		AA00000000000000000000A3 /* XCLocalSwiftPackageReference "NotifiableAIKit" */ = {
+		AA00000000000000000000A3 /* XCLocalSwiftPackageReference "NotifiableKit" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = .;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AA00000000000000000000A2 /* NotifiableAIKit */ = {
+		AA00000000000000000000A2 /* NotifiableKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = NotifiableAIKit;
+			productName = NotifiableKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

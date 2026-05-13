@@ -16,7 +16,7 @@ public enum APNSEnvironment: String, Sendable, Codable {
     case unknown
 }
 
-extension NotifiableAI {
+extension NotifiableRemote {
     /// The APNs environment this build was signed for, derived from the
     /// embedded mobileprovision file.
     ///

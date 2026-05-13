@@ -1,5 +1,5 @@
 import Foundation
-@testable import NotifiableAIKit
+@testable import NotifiableKit
 
 /// Deterministic in-memory adapter for `decide` tests.
 ///

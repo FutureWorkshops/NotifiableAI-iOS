@@ -1,6 +1,6 @@
 import Foundation
 
-/// High-level entry point for the NotifiableAI SDK.
+/// High-level entry point for the NotifiableRemote SDK.
 ///
 /// Configure once at app startup with your server URL and `device_write` API
 /// key, then call ``register(pushToken:pushType:appVersion:locale:)`` from
@@ -8,23 +8,23 @@ import Foundation
 ///
 /// ```swift
 /// // In your AppDelegate / @main file.
-/// NotifiableAI.configure(
+/// NotifiableRemote.configure(
 ///     baseURL: URL(string: "https://api.notifiable.ai")!,
 ///     apiKey: "nfk_your_device_write_key"
 /// )
 ///
 /// // In didRegisterForRemoteNotificationsWithDeviceToken:
 /// let hex = deviceToken.map { String(format: "%02x", $0) }.joined()
-/// _ = try await NotifiableAI.register(pushToken: hex)
+/// _ = try await NotifiableRemote.register(pushToken: hex)
 /// ```
 ///
 /// Subsequent ``update(pushToken:appVersion:locale:pushType:)`` and
 /// ``unregister(pushToken:)`` calls automatically use the `device_secret`
 /// stored at register time. By default, the secret and device id are persisted
-/// to the keychain (`KeychainStorage`); inject your own ``NotifiableAIStorage``
+/// to the keychain (`KeychainStorage`); inject your own ``NotifiableRemoteStorage``
 /// to change that.
-public enum NotifiableAI {
-    /// Default NotifiableAI server. Override by passing a custom `baseURL` to
+public enum NotifiableRemote {
+    /// Default NotifiableRemote server. Override by passing a custom `baseURL` to
     /// ``configure(baseURL:apiKey:storage:session:bundle:)``.
     public static let defaultBaseURL = URL(string: "https://notifiableai.fws.io")!
 
@@ -32,8 +32,8 @@ public enum NotifiableAI {
     nonisolated(unsafe) private static var _config: Config?
 
     private struct Config {
-        let client: NotifiableAIClient
-        let storage: NotifiableAIStorage
+        let client: NotifiableRemoteClient
+        let storage: NotifiableRemoteStorage
         let bundle: Bundle
     }
 
@@ -43,16 +43,16 @@ public enum NotifiableAI {
     }
 
     /// Configure the SDK. Safe to call multiple times — the latest call wins.
-    /// Pass a custom ``NotifiableAIStorage`` if you don't want the default
+    /// Pass a custom ``NotifiableRemoteStorage`` if you don't want the default
     /// keychain persistence.
     public static func configure(
         baseURL: URL = defaultBaseURL,
         apiKey: String,
-        storage: NotifiableAIStorage? = nil,
+        storage: NotifiableRemoteStorage? = nil,
         session: URLSession = .shared,
         bundle: Bundle = .main
     ) {
-        let resolvedStorage: NotifiableAIStorage
+        let resolvedStorage: NotifiableRemoteStorage
         if let storage {
             resolvedStorage = storage
         } else {
@@ -64,13 +64,13 @@ public enum NotifiableAI {
         }
         lock.lock(); defer { lock.unlock() }
         _config = Config(
-            client: NotifiableAIClient(baseURL: baseURL, deviceWriteKey: apiKey, session: session),
+            client: NotifiableRemoteClient(baseURL: baseURL, deviceWriteKey: apiKey, session: session),
             storage: resolvedStorage,
             bundle: bundle
         )
     }
 
-    /// Register the device with the NotifiableAI server. Persists the returned
+    /// Register the device with the NotifiableRemote server. Persists the returned
     /// `device_secret` and `id` to storage so later `update` / `unregister`
     /// calls work without further bookkeeping. Returns the full server response.
     @discardableResult
@@ -171,14 +171,14 @@ public enum NotifiableAI {
     private static func config() throws -> Config {
         lock.lock(); defer { lock.unlock() }
         guard let c = _config else {
-            throw NotifiableAIError.notConfigured
+            throw NotifiableRemoteError.notConfigured
         }
         return c
     }
 
     private static func requireDeviceSecret(_ cfg: Config) throws -> String {
         guard let s = cfg.storage.string(forKey: Keys.deviceSecret), !s.isEmpty else {
-            throw NotifiableAIError.deviceNotRegistered
+            throw NotifiableRemoteError.deviceNotRegistered
         }
         return s
     }

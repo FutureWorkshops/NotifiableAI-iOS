@@ -34,7 +34,7 @@ extension NotifiableDecide {
         let adapter: any ModelAdapter
         let clock: any Clock<Duration>
         let assembler: ContextAssembler
-        private let log = Logger(subsystem: "com.futureworkshops.notifiable-ai.decide", category: "decide")
+        private let log = Logger(subsystem: "com.futureworkshops.notifiable.decide", category: "decide")
 
         public init(
             store: any PreferenceStore,

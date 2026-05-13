@@ -3,8 +3,8 @@ import UIKit
 import UserNotifications
 
 extension Notification.Name {
-    static let pushTokenAvailable = Notification.Name("NotifiableAI.pushTokenAvailable")
-    static let pushRegistrationFailed = Notification.Name("NotifiableAI.pushRegistrationFailed")
+    static let pushTokenAvailable = Notification.Name("NotifiableRemote.pushTokenAvailable")
+    static let pushRegistrationFailed = Notification.Name("NotifiableRemote.pushRegistrationFailed")
 }
 
 final class AppDelegate: NSObject, UIApplicationDelegate {

@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-@testable import NotifiableAIKit
+@testable import NotifiableKit
 
 @Suite struct ContextAssemblerTests {
     typealias Pref = NotifiableDecide.Preference

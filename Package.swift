@@ -2,24 +2,24 @@
 import PackageDescription
 
 let package = Package(
-    name: "NotifiableAIKit",
+    name: "NotifiableKit",
     platforms: [
         .iOS(.v18),
         .macOS(.v14),
         .visionOS(.v1)
     ],
     products: [
-        .library(name: "NotifiableAIKit", targets: ["NotifiableAIKit"])
+        .library(name: "NotifiableKit", targets: ["NotifiableKit"])
     ],
     targets: [
         .target(
-            name: "NotifiableAIKit",
-            path: "NotifiableAIKit/Sources/NotifiableAIKit"
+            name: "NotifiableKit",
+            path: "NotifiableKit/Sources/NotifiableKit"
         ),
         .testTarget(
-            name: "NotifiableAIKitTests",
-            dependencies: ["NotifiableAIKit"],
-            path: "NotifiableAIKit/Tests/NotifiableAIKitTests"
+            name: "NotifiableKitTests",
+            dependencies: ["NotifiableKit"],
+            path: "NotifiableKit/Tests/NotifiableKitTests"
         )
     ]
 )

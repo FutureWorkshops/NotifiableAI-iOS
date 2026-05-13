@@ -1,5 +1,5 @@
 import SwiftUI
-import NotifiableAIKit
+import NotifiableKit
 
 struct CandidatesTab: View {
     @EnvironmentObject var harness: TestHarness

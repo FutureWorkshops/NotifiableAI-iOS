@@ -2,7 +2,7 @@ import Foundation
 
 /// Errors thrown by ``NotifiableDecide/Engine`` and its collaborators.
 ///
-/// Sits at module top level, parallel to ``NotifiableAIError``, so `throws`
+/// Sits at module top level, parallel to ``NotifiableRemoteError``, so `throws`
 /// clauses stay readable.
 public enum NotifiableDecideError: Error, Sendable, CustomStringConvertible {
     case foundationModelUnavailable

@@ -52,7 +52,7 @@ public struct LiveActivityResponse: Decodable, Sendable {
     }
 }
 
-public enum NotifiableAIError: Error, CustomStringConvertible {
+public enum NotifiableRemoteError: Error, CustomStringConvertible {
     case missingAPIKey(String)
     case invalidResponse
     case http(status: Int, message: String?)
@@ -66,8 +66,8 @@ public enum NotifiableAIError: Error, CustomStringConvertible {
         case .invalidResponse: return "Invalid response"
         case .http(let status, let msg): return "HTTP \(status)\(msg.map { ": \($0)" } ?? "")"
         case .decoding(let e): return "Decoding error: \(e)"
-        case .notConfigured: return "NotifiableAI.configure(...) has not been called"
-        case .deviceNotRegistered: return "Device not registered: call NotifiableAI.register first"
+        case .notConfigured: return "NotifiableRemote.configure(...) has not been called"
+        case .deviceNotRegistered: return "Device not registered: call NotifiableRemote.register first"
         }
     }
 }

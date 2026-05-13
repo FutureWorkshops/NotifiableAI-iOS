@@ -1,11 +1,11 @@
-# NotifiableAI iOS
+# NotifiableRemote iOS
 
-Swift client SDK and reference test app for the [NotifiableAI](https://github.com/futureworkshops/notifiable-rails) push notification server.
+Swift client SDK and reference test app for the [NotifiableRemote](https://github.com/futureworkshops/notifiable-rails) push notification server.
 
 This repository contains two products:
 
-- **NotifiableAIKit** — a small Swift Package that wraps the NotifiableAI server's device-write API (device registration, live activities). Distributable via Swift Package Manager.
-- **NotifiableAI** — a SwiftUI multiplatform app (iOS / macOS / visionOS) that exercises every endpoint of the kit. Useful as a manual test harness during server development and as a worked example of the SDK in use.
+- **NotifiableKit** — a small Swift Package that wraps the NotifiableRemote server's device-write API (device registration, live activities). Distributable via Swift Package Manager.
+- **NotifiableRemote** — a SwiftUI multiplatform app (iOS / macOS / visionOS) that exercises every endpoint of the kit. Useful as a manual test harness during server development and as a worked example of the SDK in use.
 
 ## Requirements
 
@@ -15,17 +15,17 @@ This repository contains two products:
 
 ## Installation
 
-Add NotifiableAIKit as a dependency in your `Package.swift`:
+Add NotifiableKit as a dependency in your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/futureworkshops/NotifiableAI-iOS.git", from: "0.1.0")
+    .package(url: "https://github.com/futureworkshops/NotifiableRemote-iOS.git", from: "0.1.0")
 ],
 targets: [
     .target(
         name: "YourApp",
         dependencies: [
-            .product(name: "NotifiableAIKit", package: "NotifiableAI-iOS")
+            .product(name: "NotifiableKit", package: "NotifiableRemote-iOS")
         ]
     )
 ]
@@ -35,36 +35,36 @@ Or in Xcode: **File → Add Package Dependencies…** and paste the repo URL.
 
 ## Usage
 
-The kit ships two surfaces. Most apps want the high-level `NotifiableAI`
+The kit ships two surfaces. Most apps want the high-level `NotifiableRemote`
 namespace, which auto-fills `app_version` / `locale` from the bundle and
 persists the returned `device_secret` to the keychain so you don't have to
 think about it.
 
 ```swift
-import NotifiableAIKit
+import NotifiableKit
 
 // 1. Configure once at app startup. baseURL defaults to
 //    https://notifiableai.fws.io — pass a custom URL for self-hosted
 //    or staging servers.
-NotifiableAI.configure(apiKey: "nfk_your_device_write_key")
+NotifiableRemote.configure(apiKey: "nfk_your_device_write_key")
 
 // 2. Register from didRegisterForRemoteNotificationsWithDeviceToken.
 func application(_ app: UIApplication,
                  didRegisterForRemoteNotificationsWithDeviceToken token: Data) {
     let hex = token.map { String(format: "%02x", $0) }.joined()
-    Task { try? await NotifiableAI.register(pushToken: hex) }
+    Task { try? await NotifiableRemote.register(pushToken: hex) }
 }
 
 // Later — update / unregister automatically reuse the stored device_secret.
-try await NotifiableAI.update(pushToken: hex)
-try await NotifiableAI.unregister(pushToken: hex)
+try await NotifiableRemote.update(pushToken: hex)
+try await NotifiableRemote.unregister(pushToken: hex)
 ```
 
-`NotifiableAI.deviceSecret` and `NotifiableAI.deviceId` give read access to the
-persisted state if you need it. Pass a custom `NotifiableAIStorage` to
+`NotifiableRemote.deviceSecret` and `NotifiableRemote.deviceId` give read access to the
+persisted state if you need it. Pass a custom `NotifiableRemoteStorage` to
 `configure(... storage:)` to swap the keychain for something else.
 
-`NotifiableAI.apnsEnvironment` returns `.development` / `.production` /
+`NotifiableRemote.apnsEnvironment` returns `.development` / `.production` /
 `.unknown` based on the embedded provisioning profile, so you can route
 the push token to the matching APNs gateway server-side or surface it for
 debugging. The `register` call sends this value in the `apns_environment`
@@ -73,10 +73,10 @@ with a 422 to surface dev/prod build confusion at register time rather
 than silently failing on the next push.
 
 For runtime configuration switching (multi-environment debug tools, the bundled
-TestApp, etc.) drop down to `NotifiableAIClient`:
+TestApp, etc.) drop down to `NotifiableRemoteClient`:
 
 ```swift
-let client = NotifiableAIClient(
+let client = NotifiableRemoteClient(
     baseURL: URL(string: "https://staging.notifiable.example")!,
     deviceWriteKey: "nfk_..."
 )
@@ -87,18 +87,18 @@ let device = try await client.registerDevice(pushToken: hex)
 The kit only exposes device-write endpoints (the API key kind that's safe to
 ship in a client). Server-trigger operations such as **sending notifications**
 are intentionally out of scope — those belong in your backend, calling
-NotifiableAI directly with a `server_trigger` key.
+NotifiableRemote directly with a `server_trigger` key.
 
 ## Intelligence (on-device decisioning)
 
 The kit ships a second top-level facade, `NotifiableDecide`, that runs
 on-device agentic decisions over the user's preferences via Apple's Foundation
-Models framework. Where the `NotifiableAI` facade decides _how_ a notification
+Models framework. Where the `NotifiableRemote` facade decides _how_ a notification
 reaches the device, `NotifiableDecide` decides _whether_ a candidate
 alert is worth showing the user and how it should read.
 
 ```swift
-import NotifiableAIKit
+import NotifiableKit
 
 let engine = NotifiableDecide.Engine(
     store: NotifiableDecide.InMemoryPreferenceStore(),
@@ -136,7 +136,7 @@ candidate event + a handful of preferences, tap Decide, and see the decoded
 
 > Live Activities: ActivityKit sets the initial `ContentState` locally on the device. The server only stores the activity's metadata so it can be targeted for pushes — content updates are sent server→device via APNs.
 
-Errors surface as `NotifiableAIError`:
+Errors surface as `NotifiableRemoteError`:
 
 - `.missingAPIKey(String)` — no key was provided
 - `.http(status: Int, message: String?)` — non-2xx response
@@ -146,12 +146,12 @@ Errors surface as `NotifiableAIError`:
 ## Running the TestApp
 
 ```sh
-git clone https://github.com/futureworkshops/NotifiableAI-iOS.git
-cd NotifiableAI-iOS
-open NotifiableAI.xcodeproj
+git clone https://github.com/futureworkshops/NotifiableRemote-iOS.git
+cd NotifiableRemote-iOS
+open NotifiableRemote.xcodeproj
 ```
 
-Pick the **NotifiableAI** scheme and run on a real device (push registration won't work in the simulator). On first launch you'll get the iOS notification permission prompt; once granted, the **Push Token** field on the Settings tab is populated automatically.
+Pick the **NotifiableRemote** scheme and run on a real device (push registration won't work in the simulator). On first launch you'll get the iOS notification permission prompt; once granted, the **Push Token** field on the Settings tab is populated automatically.
 
 Set the **Base URL** to your server, paste a `device_write` key, then tap **Register**. The Log tab shows the full request/response trail.
 
@@ -159,30 +159,30 @@ Set the **Base URL** to your server, paste a `device_write` key, then tap **Regi
 
 ```sh
 # Package only
-cd NotifiableAIKit && swift build && swift test
+cd NotifiableKit && swift build && swift test
 
 # TestApp (replace the destination with one available on your machine)
-xcodebuild -project NotifiableAI.xcodeproj -scheme NotifiableAI \
+xcodebuild -project NotifiableRemote.xcodeproj -scheme NotifiableRemote \
   -destination 'platform=iOS Simulator,name=iPhone 17' build
 ```
 
 ## Repository layout
 
 ```
-NotifiableAI-iOS/
-├── NotifiableAIKit/           SwiftPM package (the SDK)
+NotifiableRemote-iOS/
+├── NotifiableKit/           SwiftPM package (the SDK)
 │   ├── Package.swift
-│   ├── Sources/NotifiableAIKit/
-│   └── Tests/NotifiableAIKitTests/
-├── NotifiableAI/              TestApp (SwiftUI)
-├── NotifiableAITests/
-├── NotifiableAIUITests/
-└── NotifiableAI.xcodeproj/
+│   ├── Sources/NotifiableKit/
+│   └── Tests/NotifiableKitTests/
+├── NotifiableRemote/              TestApp (SwiftUI)
+├── NotifiableRemoteTests/
+├── NotifiableRemoteUITests/
+└── NotifiableRemote.xcodeproj/
 ```
 
 ## Contributing
 
-Issues and pull requests welcome. Run `swift test` in `NotifiableAIKit/` and the Xcode test suite for the app target before submitting.
+Issues and pull requests welcome. Run `swift test` in `NotifiableKit/` and the Xcode test suite for the app target before submitting.
 
 ## License
 

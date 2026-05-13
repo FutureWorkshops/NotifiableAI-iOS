@@ -3,21 +3,21 @@ import Foundation
 import Security
 #endif
 
-/// Persists the small bits of state NotifiableAI needs across launches:
+/// Persists the small bits of state NotifiableRemote needs across launches:
 /// the `device_secret` returned by `register`, and the device's row id.
 ///
 /// The default implementation is a keychain wrapper. Tests inject an
-/// in-memory store via `NotifiableAI.configure(... storage:)`.
-public protocol NotifiableAIStorage: Sendable {
+/// in-memory store via `NotifiableRemote.configure(... storage:)`.
+public protocol NotifiableRemoteStorage: Sendable {
     func string(forKey key: String) -> String?
     func setString(_ value: String?, forKey key: String)
 }
 
 #if canImport(Security)
-public struct KeychainStorage: NotifiableAIStorage {
+public struct KeychainStorage: NotifiableRemoteStorage {
     public let service: String
 
-    public init(service: String = "ai.notifiable.kit") {
+    public init(service: String = "notifiable.kit") {
         self.service = service
     }
 
@@ -55,7 +55,7 @@ public struct KeychainStorage: NotifiableAIStorage {
 #endif
 
 /// In-memory storage for tests and previews.
-public final class InMemoryStorage: NotifiableAIStorage, @unchecked Sendable {
+public final class InMemoryStorage: NotifiableRemoteStorage, @unchecked Sendable {
     private var values: [String: String] = [:]
     private let lock = NSLock()
 
